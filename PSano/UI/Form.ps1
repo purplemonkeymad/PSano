@@ -18,17 +18,7 @@ class TextUIForm {
     }
 
     [void]Draw() {
-        $Canvas = [Canvas]::new($this.BufferOrigin.x,$this.BufferOrigin.y,$this.WindowSize.x,$this.WindowSize.y)
-        $DrawTop = 0
-        foreach ( $Panel in $this.ChildPanelList) {
-            if ($DrawTop -gt $this.WindowSize.y){
-                continue
-            }
-            $ValidHeight = [math]::min($Panel.WindowSize.y, $this.WindowSize.y - $DrawTop)
-            $PanelCanvas = $Canvas.SubCanvas(0,$DrawTop,$Canvas.BufferSize.x,$ValidHeight)
-            $Panel.Draw($PanelCanvas)
-            $DrawTop += $Panel.WindowSize.y # update top
-        }
+        $this.Draw(0..$this.WindowSize.y)
     }
 
     [void]Draw([decimal[]]$lines){
@@ -44,7 +34,8 @@ class TextUIForm {
             $ValidHeight = [math]::min($Panel.WindowSize.y, $this.WindowSize.y - $DrawTop)
             $PanelCanvas = $Canvas.SubCanvas(0,$DrawTop,$Canvas.BufferSize.x,$ValidHeight)
             
-            $Panel.Draw( $PanelCanvas, $DrawLines.Where({$_ -ge $DrawTop -and $_ -lt $DrawBottom }) )
+            # the where here must be betwen 0 and bottom-top as we have shifted all number down by top
+            $Panel.Draw( $PanelCanvas, $DrawLines.foreach({$_ - $DrawTop}).Where({$_ -ge 0 -and $_ -lt ($DrawBottom-$DrawTop) }) )
             $DrawTop += $Panel.WindowSize.y # update top
         }
     }

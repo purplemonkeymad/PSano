@@ -12,7 +12,7 @@ class TextUIPanel {
 
     }
 
-    [void] Draw ( [Canvas]$g, [decimal[]]$lines) {
+    [void] Draw ( [Canvas]$g, [decimal[]]$lineList ) {
         $this.Draw($g)
     }
     
