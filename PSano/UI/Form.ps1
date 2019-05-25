@@ -10,7 +10,7 @@ class TextUIForm {
     [List[TextUIPanel]]$ChildPanelList = [List[TextUIPanel]]::new()
 
     [List[int]]$RedrawLinesList = [List[int]]::new()
-    [bool]$RedrawAll
+    [bool]$RedrawAll = $false
 
     TextUIForm() {
         $this.BufferOrigin = [UIPoint]::new([console]::CursorLeft,[console]::CursorTop)
