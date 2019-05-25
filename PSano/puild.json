@@ -1,0 +1,19 @@
+{
+    "PrivateRegexs":  [
+                          "\\.private\\.ps.?1",
+                          "\\\\private\\\\"
+                      ],
+    "SettingsVersion":  4,
+    "ResetBuildNumberOnRelease":  true,
+    "ResolveEPSOnInvoke":  false,
+    "OnBuildRepository":  [
+
+                          ],
+    "OnMinorRepository":  [
+
+                          ],
+    "OnMajorRepository":  [
+
+                          ],
+    "ModuleName":  "PSano"
+}
