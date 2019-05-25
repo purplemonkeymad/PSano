@@ -2,7 +2,7 @@ using namespace System.Collections.Generic
 
 class KeyHandler {
 
-    [Dictionary[ConsoleKey,KeyHandle]]$HandleCache
+    [Dictionary[String,KeyHandle]]$HandleCache
     [KeyHandle]$Default
 
     KeyHandler () {
@@ -10,18 +10,26 @@ class KeyHandler {
     }
 
     [void]Add([KeyHandle]$Handle) {
-        $this.HandleCache.add($Handle.CacheValue(),$Handle)
+        $this.HandleCache.add([KeyHandler]::GetLookUpKey($Handle),$Handle)
+    }
+
+    static [String]GetLookUpKey([KeyHandle]$Handle){
+        return "$($Handle.Modifier)+$($Handle.Key)"
+    }
+
+    static [String]GetLookUpKey([ConsoleKeyInfo]$ConsoleKey){
+        return "$($ConsoleKey.Modifiers)+$($ConsoleKey.Key)"
     }
 
     [void]ReadKey() {
         # we are looking for all keys
         [console]::TreatControlCAsInput = $true
 
-        $NextKey = [console]::ReadKey()
-        $LookupKey = "$($nextKey.Modifiers)+$($nextKey.Key)"
+        $NextKey = [console]::ReadKey($true)
+        $LookupKey = [KeyHandler]::GetLookUpKey($NextKey)
         if ($this.HandleCache.containskey($LookupKey) ){
             ForEach-Object -Process $this.HandleCache[$LookupKey].Action -InputObject $NextKey
-        } else {
+        } elseif ($this.Default) {
             ForEach-Object -Process $this.Default.Action -InputObject $NextKey
         }
 

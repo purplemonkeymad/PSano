@@ -25,9 +25,11 @@ class MenuPanel : TextUIPanel {
     [string[]]$CachedKeys
 
     [void] Draw ( [Canvas]$g ){
-        if (-not $this.CachedKeys) {
-            [Queue[string]]$KeyStringList = $this.MenuKeys.foreach({
-                "$(if ($_.Modifier) {$_.Modifier.tostring()[0]+'+'})$($_.Key): $($_.name) "
+        if ($this.CachedKeys.count -eq 0) {
+            [Queue[string]]$KeyStringList = @()
+            $this.MenuKeys.foreach({
+                # as this is a loop on a generic list we need to use $args[0] instead of $_
+                $keyStringList.Enqueue("$(if ($args[0].Modifier) {$args[0].Modifier.tostring()[0]+'+'})$($args[0].Key): $($args[0].name) ")
             })
             $line1 = ""
             while ($keyStringList.Count -gt 0 -and $line1.Length + $KeyStringList.Peek().Length -lt $g.BufferSize.x){
@@ -40,8 +42,8 @@ class MenuPanel : TextUIPanel {
             $this.CachedKeys = $line1.PadRight($g.BufferSize.x),$line2.PadRight($g.BufferSize.x)
         }
 
-        $g.Draw(0,0,$this.CachedKeys[0])
-        $g.Draw(0,1,$this.CachedKeys[1])
+        $g.Write(0,0,$this.CachedKeys[0])
+        $g.Write(0,1,$this.CachedKeys[1])
     }
 
 }

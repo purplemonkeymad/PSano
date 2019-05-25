@@ -2,7 +2,7 @@ using namespace System.Collections.Generic
 
 class FocusSwitchingHandle : KeyHandle {
     
-    [Dictionary[string,KeyHandeler]]$ContextCache
+    [Dictionary[string,KeyHandler]]$ContextCache
 
     FocusSwitchingHandle () : base ($null,{
         $this.Action($_)
