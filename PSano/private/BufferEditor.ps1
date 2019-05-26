@@ -54,15 +54,33 @@ class BufferEditor {
                 #nav
                 ([Consolekey]::UpArrow) {
                     $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
+                    $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
                 }
                 ([Consolekey]::DownArrow) {
                     $this.CursorLocation.y = [Math]::Min($this.EditorBuffer.Count-1, $this.CursorLocation.y+1 )
+                    $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
                 }
                 ([Consolekey]::LeftArrow) {
-                    $this.CursorLocation.x = [Math]::Max(0, $this.CursorLocation.x -1 )
+                    $this.CursorLocation.x = $this.CursorLocation.x -1
+                    if ($this.CursorLocation.x -lt 0 ){
+                        if ($this.CursorLocation.y -ne 0){
+                            $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
+                            $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
+                        } else {
+                            $this.CursorLocation.x = 0
+                        }
+                    }
                 }
                 ([Consolekey]::RightArrow) {
-                    $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x+1,$this.EditorBuffer[$this.CursorLocation.y].Count)
+                    $this.CursorLocation.x = $this.CursorLocation.x+1
+                    if ($this.CursorLocation.x -gt $this.EditorBuffer[$this.CursorLocation.y].Count) {
+                        if ($this.CursorLocation.y -ne $this.EditorBuffer.Count){
+                            $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y +1 )
+                            $this.CursorLocation.x = 0
+                        } else {
+                            $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
+                        }
+                    }
                 }
 
                 #Default {}
