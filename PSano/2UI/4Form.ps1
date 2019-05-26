@@ -9,16 +9,48 @@ class TextUIForm {
 
     [List[TextUIPanel]]$ChildPanelList = [List[TextUIPanel]]::new()
 
-    [List[int]]$RedrawLinesList = [List[int]]::new()
+    [List[decimal]]$RedrawLinesList = [List[decimal]]::new()
     [bool]$RedrawAll = $false
 
     TextUIForm() {
         $this.BufferOrigin = [UIPoint]::new([console]::CursorLeft,[console]::CursorTop)
         $this.WindowSize = [uipoint]::new([console]::BufferWidth,[Console]::WindowHeight)
+        $this.RedrawAll = $true
+    }
+
+    [void]Redraw() {
+        $this.RedrawAll = $true
+    }
+
+    [void]Redraw ([decimal[]]$LinesToRedraw) {
+        $this.RedrawLinesList.AddRange($LinesToRedraw)
     }
 
     [void]Draw() {
-        $this.Draw(0..$this.WindowSize.y)
+        if ($this.RedrawAll){
+            $this.Draw(0..$this.WindowSize.y)
+            $this.RedrawAll = $false
+            return
+        }
+        if ($this.ChildPanelList.RedrawAll -eq $true){
+            $this.Draw(0..$this.WindowSize.y)
+            $this.RedrawAll = $false
+            $this.ChildPanelList.ForEach({
+                $args[0].RedrawAll = $false
+            })
+            return
+        }
+        if ($this.ChildPanelList.RedrawLinesList.count -gt 0 -or $this.RedrawLinesList.cout -gt 0){
+            $LinesToDraw = ForEach-Object -Begin {$i = 0} -InputObject $this.ChildPanelList -Process {
+                $_.RedrawLinesList.foreach({$args[0]+$i}) # rebase lines to the top of the form from the top of the panel
+                $_.RedrawLinesList.Clear()
+                $i += $_.WindowSize.y
+            }
+            $LinesToDraw += $this.RedrawLinesList
+            $this.RedrawLinesList.Clear()
+            $this.Draw($LinesToDraw)
+            return
+        }
     }
 
     [void]Draw([decimal[]]$lines){

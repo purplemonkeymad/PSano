@@ -3,7 +3,7 @@ using namespace System.Collections.Generic
 class KeyHandler {
 
     [Dictionary[String,KeyHandle]]$HandleCache
-    [KeyHandle]$Default
+    [scriptblock]$Default
 
     KeyHandler () {
         $this.HandleCache = [Dictionary[String,KeyHandle]]::new()
@@ -30,7 +30,7 @@ class KeyHandler {
         if ($this.HandleCache.containskey($LookupKey) ){
             ForEach-Object -Process $this.HandleCache[$LookupKey].Action -InputObject $NextKey
         } elseif ($this.Default) {
-            ForEach-Object -Process $this.Default.Action -InputObject $NextKey
+            ForEach-Object -Process $this.Default -InputObject $NextKey
         }
 
         # return to default setting.

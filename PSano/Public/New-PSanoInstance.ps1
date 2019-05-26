@@ -22,6 +22,7 @@ function New-PSanoInstance {
         $bufferheight = [console]::WindowHeight - 3
 
         $Buffer = [BufferPanel]::new($bufferheight)
+        $buffer.SetFocus()
         $TextForm.ChildPanelList.Add($Buffer)
 
         $GlobalKeyActions = @(
@@ -41,16 +42,35 @@ function New-PSanoInstance {
         $MainKeyListener = [KeyHandler]::new()
         $GlobalKeyActions | ForEach-Object { $MainKeyListener.Add( $_) }
 
+        #editor object
+
+        $script:BufferEditor = [BufferEditor]::new($Buffer)
+
+        # setup buffer to handle keys
+
+        $MainKeyListener.Default = {
+            $script:BufferEditor.HandleKey($_)
+        }
+
         if (Test-Path -Path $path){
             $filename = $path | Split-Path -Leaf
             $Header.Text = "PSano : $filename"
-            $buffer.DisplayBuffer = Get-Content $path
+            $BufferEditor.LoadBuffer( (Get-Content $path) )
         }
 
         # "main loop"
-        while ($script:ShouldReadNextKey){
-            $TextForm.Draw()
-            $MainKeyListener.ReadKey()
+        $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
+        try{
+            while ($script:ShouldReadNextKey){
+                $TextForm.Draw()
+                $Buffer.UpdateCursor()
+                $MainKeyListener.ReadKey()
+            }
+        } finally {
+            #clean up if we are inturrpted.
+            [console]::CursorVisible = $true
+            [console]::CursorTop = $ExitCursorTop
+            [console]::CursorLeft = 0
         }
     }
     
