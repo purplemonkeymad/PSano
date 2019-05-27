@@ -144,8 +144,15 @@ class BufferEditor {
                         $this.EditorBuffer[$this.CursorLocation.y].RemoveAt($this.CursorLocation.x-1)
                         $this.MoveCursor([CursorDirection]::Left)
                         $this.RedrawLine($this.CursorLocation.y)
-                    } else {
+                    } elseif ($this.CursorLocation.y -gt 0) {
                         # remove line
+                        [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y]
+                        $this.EditorBuffer.RemoveAt($this.CursorLocation.y)
+                        $this.MoveCursor([CursorDirection]::Left)
+                        # cursor shoud now be at previous line.
+                        if ($CutLine.Count -gt 0) {
+                            $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                        }
                     }
                 }
 
