@@ -1,5 +1,14 @@
 using namespace System.Collections.Generic
 
+enum CursorDirection {
+    Up
+    Down
+    Left
+    Right
+    Start
+    End
+}
+
 class BufferEditor {
     
     [BufferPanel]$Display
@@ -47,46 +56,118 @@ class BufferEditor {
         }
     }
 
+    [void]RedrawLine([decimal]$line){
+        $this.UpdateDisplayBuffer($line)
+        $this.Display.Redraw($line)
+    }
+
+    [void]RedrawBelow([decimal]$line) {
+        if ($this.EditorBuffer.count -eq $this.Display.DisplayBuffer.Count){
+            $lastline = $this.EditorBuffer.Count
+            for ($i = 0; $i -lt $lastline; $i++){
+                $this.RedrawLine($i)
+            }
+        } else {
+            $this.UpdateDisplayBuffer()
+        }
+    }
+
+    [void]MoveCursor ([CursorDirection]$Dir) {
+        $this.MoveCursor($Dir,1)
+    }
+
+    [void]MoveCursor ([CursorDirection]$Dir,[decimal]$Distance) {
+        switch ($Dir) {
+            #nav
+            ([CursorDirection]::Up) {
+                $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
+                $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
+            }
+            ([CursorDirection]::Down) {
+                $this.CursorLocation.y = [Math]::Min($this.EditorBuffer.Count-1, $this.CursorLocation.y+1 )
+                $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
+            }
+            ([CursorDirection]::Left) {
+                $this.CursorLocation.x = $this.CursorLocation.x -1
+                if ($this.CursorLocation.x -lt 0 ){
+                    if ($this.CursorLocation.y -ne 0){
+                        $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
+                        $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
+                    } else {
+                        $this.CursorLocation.x = 0
+                    }
+                }
+            }
+            ([CursorDirection]::Right) {
+                $this.CursorLocation.x = $this.CursorLocation.x+1
+                if ($this.CursorLocation.x -gt $this.EditorBuffer[$this.CursorLocation.y].Count) {
+                    if ($this.CursorLocation.y -ne $this.EditorBuffer.Count-1){
+                        $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y +1 )
+                        $this.CursorLocation.x = 0
+                    } else {
+                        $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
+                    }
+                }
+            }
+        }
+        $this.Display.SetCursor($this.CursorLocation.x,$this.CursorLocation.y)
+    }
+
+
     [void]HandleKey([System.ConsoleKeyInfo]$KeyEvent){
         if (-not $KeyEvent.Modifiers){
             # keys without modifiers
             switch ($keyEvent.Key) {
                 #nav
                 ([Consolekey]::UpArrow) {
-                    $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
-                    $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
+                    $this.MoveCursor([CursorDirection]::Up)
                 }
                 ([Consolekey]::DownArrow) {
-                    $this.CursorLocation.y = [Math]::Min($this.EditorBuffer.Count-1, $this.CursorLocation.y+1 )
-                    $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
+                    $this.MoveCursor([CursorDirection]::Down)
                 }
                 ([Consolekey]::LeftArrow) {
-                    $this.CursorLocation.x = $this.CursorLocation.x -1
-                    if ($this.CursorLocation.x -lt 0 ){
-                        if ($this.CursorLocation.y -ne 0){
-                            $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
-                            $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
-                        } else {
-                            $this.CursorLocation.x = 0
-                        }
-                    }
+                    $this.MoveCursor([CursorDirection]::Left)
                 }
                 ([Consolekey]::RightArrow) {
-                    $this.CursorLocation.x = $this.CursorLocation.x+1
-                    if ($this.CursorLocation.x -gt $this.EditorBuffer[$this.CursorLocation.y].Count) {
-                        if ($this.CursorLocation.y -ne $this.EditorBuffer.Count){
-                            $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y +1 )
-                            $this.CursorLocation.x = 0
-                        } else {
-                            $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
-                        }
+                    $this.MoveCursor([CursorDirection]::Right)
+                }
+            }
+        }
+
+        #we don't care about modifiers.
+        if ($KeyEvent.KeyChar) {
+            # can by typed?
+            switch ($keyEvent.Key) {
+                # text control keys
+                ([System.ConsoleKey]::Backspace) {
+                    if ($this.CursorLocation.x -gt 0){
+                        $this.EditorBuffer[$this.CursorLocation.y].RemoveAt($this.CursorLocation.x-1)
+                        $this.MoveCursor([CursorDirection]::Left)
+                        $this.RedrawLine($this.CursorLocation.y)
+                    } else {
+                        # remove line
                     }
                 }
 
-                #Default {}
+                ([System.ConsoleKey]::Enter) {
+                    if ($this.CursorLocation.x -eq $this.EditorBuffer[$this.CursorLocation.y].Count){
+                        # end of line, easy
+                        $this.EditorBuffer.Insert($this.CursorLocation.y+1,[List[char]]::new())
+                        $this.MoveCursor([CursorDirection]::Down)
+                        $this.RedrawBelow($this.CursorLocation.y)
+                    } else {
+                        # middle of line
+
+                    }
+                }
+
+                # typing keys
+                Default {
+                    $this.EditorBuffer[$this.CursorLocation.y].Insert($this.CursorLocation.x,$KeyEvent.KeyChar)
+                    $this.MoveCursor([CursorDirection]::Right)
+                    $this.RedrawLine($this.CursorLocation.y)
+                }
             }
-            # set cursor pos
-            $this.Display.SetCursor($this.CursorLocation.x,$this.CursorLocation.y)
         }
         
     }
