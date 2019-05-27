@@ -26,5 +26,9 @@ class TextUIPanel {
     [void] Redraw ([decimal[]]$LinesToRedraw) {
         $this.RedrawLinesList.AddRange($LinesToRedraw)
     }
+
+    [void] ClearRedrawList () {
+        $this.RedrawLinesList.Clear()
+    }
     
 }

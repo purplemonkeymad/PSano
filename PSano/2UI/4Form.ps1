@@ -41,14 +41,23 @@ class TextUIForm {
             return
         }
         if ($this.ChildPanelList.RedrawLinesList.count -gt 0 -or $this.RedrawLinesList.cout -gt 0){
-            $LinesToDraw = ForEach-Object -Begin {$i = 0} -InputObject $this.ChildPanelList -Process {
-                $_.RedrawLinesList.foreach({$args[0]+$i}) # rebase lines to the top of the form from the top of the panel
-                $_.RedrawLinesList.Clear()
+            [int]$i = 0
+            [decimal[]]$LinesToDraw = foreach ($_ in $this.ChildPanelList) {
+                foreach ($ChildLine in  $_.RedrawLinesList) {
+                    $ChildLine+$i
+                } # rebase lines to the top of the form from the top of the panel
+                $_.ClearRedrawList()
                 $i += $_.WindowSize.y
             }
-            $LinesToDraw += $this.RedrawLinesList
-            $this.RedrawLinesList.Clear()
-            $this.Draw($LinesToDraw)
+            [list[decimal]]$linelist = [list[decimal]]::new()
+            if ($LinesToDraw.count -gt 0){
+                $linelist.AddRange($LinesToDraw)
+            }
+            if ($this.RedrawLinesList.count -gt 0) {
+                $linelist.AddRange($this.RedrawLinesList)
+                $this.RedrawLinesList.Clear()
+            }
+            $this.Draw($linelist)
             return
         }
     }
