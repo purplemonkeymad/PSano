@@ -47,9 +47,9 @@ class BufferEditor {
     [void]UpdateDisplayBuffer(){
         $index = 0
         $displayPage = foreach ($_ in $this.EditorBuffer) {
-            if ($index -le $this.Display.WindowSize.y) {
+            #if ($index -le $this.Display.WindowSize.y) {
                 [string]::new( [char[]]$_ )
-            }
+            #}
             $index++
         }
         $this.Display.DisplayBuffer = $displayPage

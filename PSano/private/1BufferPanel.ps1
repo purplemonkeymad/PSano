@@ -6,6 +6,9 @@ class BufferPanel : TextUIPanel {
     [UIPoint]$CursorPos = [UIPoint]::new(0,0)
     [bool]$SetCursorPosition = $false
 
+    [decimal]$Page = 0
+    [decimal]$ScreensRight = 0
+
     [UIPoint]$CachedOrigin = $null
 
     BufferPanel ([decimal]$height) : base ($height) {
@@ -20,10 +23,18 @@ class BufferPanel : TextUIPanel {
 
     [void] Draw ( [Canvas]$g, [decimal[]]$lineList ) {
         $EmptyLine = " ~ ".PadRight($g.BufferSize.x)
+        $CurrentPageTop = ($this.Page * $this.WindowSize.y)
+
         foreach ( $Line in $lineList ) {
-            if ($line -lt $this.DisplayBuffer.count){
-                # we also pad here as we need to clear any underlying text
-                $g.write( 0,$line, $this.DisplayBuffer[$line].PadRight($g.BufferSize.x) )
+            $BufferLine = $line + $CurrentPageTop
+            if ($BufferLine -lt $this.DisplayBuffer.count){
+                if ($line -eq $this.CursorPos.y -and $this.ScreensRight -gt 0){
+                    $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)
+                    $g.write( 0,$line, $this.DisplayBuffer[$BufferLine].Substring($CurrentScreenLeft).PadRight($g.BufferSize.x) )
+                } else {
+                    # we also pad here as we need to clear any underlying text
+                    $g.write( 0,$line, $this.DisplayBuffer[$BufferLine].PadRight($g.BufferSize.x) )
+                }
             } else {
                 $g.write( 0,$line, $EmptyLine)
             }
@@ -38,8 +49,44 @@ class BufferPanel : TextUIPanel {
 
     [void] UpdateCursor () {
         if ($this.SetCursorPosition -and $this.CachedOrigin) {
-            [console]::CursorLeft = $this.CursorPos.x + $this.CachedOrigin.x
-            [console]::CursorTop  = $this.CursorPos.y + $this.CachedOrigin.y
+
+            # translate actual cursor positions to our internal buffer area
+
+            $CurrentPageTop = ($this.Page * $this.WindowSize.y)
+            $CurrentPageBottom = ( $CurrentPageTop +  $this.WindowSize.y) -1
+
+            $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)
+            $CurrentScreenRight = ( $CurrentScreenLeft +  $this.WindowSize.x) -1
+
+            # check if new position is out of the current "page"
+
+            if ($this.CursorPos.y -lt $CurrentPageTop) {
+                $this.page = [Math]::Floor( ($this.CursorPos.y / $this.WindowSize.y) )
+                $this.Redraw()
+            }
+            if ($this.CursorPos.y -gt $CurrentPageBottom) {
+                $this.page = [Math]::Floor( ($this.CursorPos.y / $this.WindowSize.y) )
+                $this.Redraw()
+            }
+
+            [console]::CursorTop  = ($this.CursorPos.y - $CurrentPageTop) + $this.CachedOrigin.y
+
+            # check if new position is out of the current "screen"
+
+            if ($this.CursorPos.x -lt $CurrentScreenLeft) {
+                $this.ScreensRight = [Math]::Floor( ($this.CursorPos.x / $this.WindowSize.x) )
+                $this.Redraw([console]::CursorTop)
+            }
+            if ($this.CursorPos.x -gt $CurrentScreenRight) {
+                $this.ScreensRight = [Math]::Floor( ($this.CursorPos.x / $this.WindowSize.x) )
+                $this.Redraw([console]::CursorTop)
+            }
+
+            $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)
+            $CurrentScreenRight = ( $CurrentScreenLeft +  $this.WindowSize.x) -1
+
+            [console]::CursorLeft = ($this.CursorPos.x - $CurrentScreenLeft ) + $this.CachedOrigin.x
+
         }
     }
 
