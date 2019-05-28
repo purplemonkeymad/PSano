@@ -153,6 +153,7 @@ class BufferEditor {
                         if ($CutLine.Count -gt 0) {
                             $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
                         }
+                        $this.RedrawBelow($this.CursorLocation.y)
                     }
                 }
 
@@ -164,7 +165,13 @@ class BufferEditor {
                         $this.RedrawBelow($this.CursorLocation.y)
                     } else {
                         # middle of line
-
+                        $LineRemaning = $this.EditorBuffer[$this.CursorLocation.y].Count - $this.CursorLocation.x
+                        $NewLine = [char[]]::new($LineRemaning)
+                        $this.EditorBuffer[$this.CursorLocation.y].CopyTo($this.CursorLocation.x,$NewLine,0,$LineRemaning)
+                        $this.EditorBuffer[$this.CursorLocation.y].RemoveRange($this.CursorLocation.x,$LineRemaning)
+                        $this.EditorBuffer.Insert($this.CursorLocation.y+1,([list[char]]$NewLine))
+                        $this.RedrawBelow($this.CursorLocation.y)
+                        $this.MoveCursor([CursorDirection]::Right)
                     }
                 }
 
