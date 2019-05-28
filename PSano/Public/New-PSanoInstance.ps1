@@ -1,7 +1,9 @@
 function New-PSanoInstance {
     [CmdletBinding()]
     param (
-        [string]$path
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path
     )
     
     begin {
@@ -52,10 +54,17 @@ function New-PSanoInstance {
             $script:BufferEditor.HandleKey($_)
         }
 
+        $filename = $path | Split-Path -Leaf
+        $Header.Text = "PSano : $filename"
         if (Test-Path -Path $path){
-            $filename = $path | Split-Path -Leaf
-            $Header.Text = "PSano : $filename"
-            $BufferEditor.LoadBuffer( (Get-Content $path) )
+            try {
+                $BufferEditor.LoadBuffer( (Get-Content $path) )
+            } catch {
+                throw $_
+                return
+            }
+        } else {
+            $BufferEditor.LoadBuffer( [string[]]"" )
         }
 
         # "main loop"
