@@ -1,6 +1,7 @@
 class HeaderPanel : TextUIPanel {
     
     [string]$Text
+    [string]$Notice
 
     HeaderPanel () : base (1) {
         $this.Text = ""
@@ -12,7 +13,11 @@ class HeaderPanel : TextUIPanel {
 
     [void]Draw( [Canvas]$g  ){
 
-        $DrawText = " $($this.Text)".PadRight($g.BufferSize.x)
+        $DrawText = " $($this.Text)"
+        if ($this.Notice){
+            $DrawText = "$DrawText - $($this.Notice)"
+        }
+        $DrawText = $DrawText.PadRight($g.BufferSize.x)
 
         # invert colours
         [console]::BackgroundColor,[console]::ForegroundColor = [console]::ForegroundColor,[console]::BackgroundColor

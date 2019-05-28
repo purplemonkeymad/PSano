@@ -1,4 +1,4 @@
-function New-PSanoInstance {
+function Edit-TextFile {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory)]
@@ -11,11 +11,13 @@ function New-PSanoInstance {
     
     process {
 
+        $script:File = $Path
+
         $script:ShouldReadNextKey = $true
 
         $TextForm = [TextUIForm]::new()
-        $Header = [HeaderPanel]::new("PSano")
-        $TextForm.ChildPanelList.add($Header)
+        $script:Header = [HeaderPanel]::new("PSano")
+        $TextForm.ChildPanelList.add($script:Header)
 
         # header panel is 1 line
         # menu panel is 2 lines
@@ -32,9 +34,16 @@ function New-PSanoInstance {
             [MenuHandle]::new([ConsoleKey]::X,[ConsoleModifiers]::Control,{
                 $script:ShouldReadNextKey = $false
             },"Quit")
-            [MenuHandle]::new([ConsoleKey]::S,[ConsoleModifiers]::Control,{
-                # do nothing
-            },"not implimented")
+            [MenuHandle]::new([ConsoleKey]::O,[ConsoleModifiers]::Control,{
+                try {
+                    $script:BufferEditor.GetBuffer() | Set-Content -Path $script:File -ErrorAction Stop
+                    $script:Header.Notice = "Saved."
+                    $script:Header.Redraw()
+                } catch {
+                    $script:Header.Notice = $_.Exception.Message
+                    $script:Header.Redraw()
+                }
+            },"Save")
         )
 
         $TextForm.ChildPanelList.Add([MenuPanel]::new($GlobalKeyActions))
@@ -55,7 +64,7 @@ function New-PSanoInstance {
         }
 
         $filename = $path | Split-Path -Leaf
-        $Header.Text = "PSano : $filename"
+        $script:Header.Text = "PSano : $filename"
         if (Test-Path -Path $path){
             try {
                 $BufferEditor.LoadBuffer( (Get-Content $path) )
@@ -72,6 +81,8 @@ function New-PSanoInstance {
         try{
             while ($script:ShouldReadNextKey){
                 $TextForm.Draw()
+                $script:Header.Notice = $null
+                $script:Header.Redraw()
                 $Buffer.UpdateCursor()
                 $MainKeyListener.ReadKey()
             }

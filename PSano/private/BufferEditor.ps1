@@ -37,6 +37,13 @@ class BufferEditor {
         $this.UpdateDisplayBuffer()
     }
 
+    [string]GetBuffer() {
+        $AsLines = foreach ( $BufferLine in $this.EditorBuffer) {
+            $BufferLine -join ''
+        }
+        return ($AsLines -join [System.Environment]::NewLine)
+    }
+
     [void]UpdateDisplayBuffer(){
         $index = 0
         $displayPage = foreach ($_ in $this.EditorBuffer) {
