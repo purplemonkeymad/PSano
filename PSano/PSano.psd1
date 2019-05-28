@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '0.1.4'
+ModuleVersion = '0.1.5'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -77,6 +77,7 @@ NestedModules = @('.\1KeyEvents\1KeyHandle.ps1',
                '.\private\BufferEditor.ps1', 
                '.\private\Headerpanel.ps1', 
                '.\private\MenuPanel.ps1', 
+               '.\Public\Aliases.ps1', 
                '.\Public\New-PSanoInstance.ps1')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -89,7 +90,7 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+AliasesToExport = 'PSano'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
