@@ -115,8 +115,10 @@ class BufferEditor {
 
 
     [void]HandleKey([System.ConsoleKeyInfo]$KeyEvent){
+        $handled = $false
         if (-not $KeyEvent.Modifiers){
             # keys without modifiers
+            $handled = $true
             switch ($keyEvent.Key) {
                 #nav
                 ([Consolekey]::UpArrow) {
@@ -131,11 +133,14 @@ class BufferEditor {
                 ([Consolekey]::RightArrow) {
                     $this.MoveCursor([CursorDirection]::Right)
                 }
+                Default {
+                    $handled = $false
+                }
             }
         }
 
         #we don't care about modifiers.
-        if ($KeyEvent.KeyChar) {
+        if (-not $handled) { #$KeyEvent.KeyChar) {
             # can by typed?
             switch ($keyEvent.Key) {
                 # text control keys
@@ -154,6 +159,27 @@ class BufferEditor {
                             $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
                         }
                         $this.RedrawBelow($this.CursorLocation.y)
+                    }
+                }
+                ([System.ConsoleKey]::Delete) {
+                    # same as backspace but to the right
+                    if ($this.CursorLocation.x -eq ($this.EditorBuffer[$this.CursorLocation.y].Count) ) {
+                        if ( $this.CursorLocation.y -lt ($this.EditorBuffer.Count-1) ) { # if there is another line.
+                            # remove line
+                            [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y+1]
+                            $this.EditorBuffer.RemoveAt($this.CursorLocation.y+1)
+                            #$this.MoveCursor([CursorDirection]::Left)
+                            # cursor shoud now be at previous line.
+                            if ($CutLine.Count -gt 0) {
+                                $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                            }
+                            $this.RedrawBelow($this.CursorLocation.y)
+                        }
+                    } else {
+                        $this.EditorBuffer[$this.CursorLocation.y].RemoveAt($this.CursorLocation.x)
+                        #$this.MoveCursor([CursorDirection]::Left)
+                        $this.RedrawLine($this.CursorLocation.y)
+
                     }
                 }
 
@@ -177,9 +203,11 @@ class BufferEditor {
 
                 # typing keys
                 Default {
-                    $this.EditorBuffer[$this.CursorLocation.y].Insert($this.CursorLocation.x,$KeyEvent.KeyChar)
-                    $this.MoveCursor([CursorDirection]::Right)
-                    $this.RedrawLine($this.CursorLocation.y)
+                    if ($KeyEvent.KeyChar){
+                        $this.EditorBuffer[$this.CursorLocation.y].Insert($this.CursorLocation.x,$KeyEvent.KeyChar)
+                        $this.MoveCursor([CursorDirection]::Right)
+                        $this.RedrawLine($this.CursorLocation.y)
+                    }
                 }
             }
         }
