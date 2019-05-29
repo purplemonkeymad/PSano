@@ -32,15 +32,15 @@ class TextUIForm {
             $this.RedrawAll = $false
             return
         }
-        if ($this.ChildPanelList.RedrawAll -eq $true){
-            $this.Draw(0..$this.WindowSize.y)
-            $this.RedrawAll = $false
-            $this.ChildPanelList.ForEach({
-                $args[0].RedrawAll = $false
-            })
-            return
+        $PanelFirstLine = 0
+        foreach ($Panel in $this.ChildPanelList){
+            if ($Panel.RedrawAll -eq $true){
+                $this.Draw($PanelFirstLine..($PanelFirstLine + ($Panel.WindowSize.y-1)))
+                $Panel.RedrawAll = $false
+            }
+            $PanelFirstLine = $PanelFirstLine + $Panel.WindowSize.y
         }
-        if ($this.ChildPanelList.RedrawLinesList.count -gt 0 -or $this.RedrawLinesList.cout -gt 0){
+        if ($this.ChildPanelList.RedrawLinesList.count -gt 0 -or $this.RedrawLinesList.count -gt 0){
             [int]$i = 0
             [decimal[]]$LinesToDraw = foreach ($_ in $this.ChildPanelList) {
                 foreach ($ChildLine in  $_.RedrawLinesList) {

@@ -15,7 +15,7 @@ function Edit-TextFile {
 
         $script:ShouldReadNextKey = $true
 
-        $TextForm = [TextUIForm]::new()
+        $script:TextForm = [TextUIForm]::new()
         $script:Header = [HeaderPanel]::new("PSano")
         $TextForm.ChildPanelList.add($script:Header)
 
@@ -27,7 +27,7 @@ function Edit-TextFile {
 
         $Buffer = [BufferPanel]::new($bufferheight)
         $buffer.SetFocus()
-        $TextForm.ChildPanelList.Add($Buffer)
+        $script:TextForm.ChildPanelList.Add($Buffer)
 
         $GlobalKeyActions = @(
             # quit option, this should break the read key loop and let the function exit.
@@ -44,9 +44,14 @@ function Edit-TextFile {
                     $script:Header.Redraw()
                 }
             },"Save")
+<#
+            [MenuHandle]::new([System.ConsoleKey]::R,[System.ConsoleModifiers]::Control,{
+                $script:TextForm.Redraw()
+            },"Refresh Screen")
+#>
         )
 
-        $TextForm.ChildPanelList.Add([MenuPanel]::new($GlobalKeyActions))
+        $script:TextForm.ChildPanelList.Add([MenuPanel]::new($GlobalKeyActions))
 
         # key handles
 
@@ -80,7 +85,7 @@ function Edit-TextFile {
         $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
         try{
             while ($script:ShouldReadNextKey){
-                $TextForm.Draw()
+                $script:TextForm.Draw()
                 $script:Header.Notice = $null
                 $script:Header.Redraw()
                 $Buffer.UpdateCursor()

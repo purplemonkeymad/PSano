@@ -20,7 +20,7 @@ class TextUIPanel {
     }
 
     [void] Redraw () {
-        $this.RedrawAll = $true
+        $this.RedrawAll=$true
     }
 
     [void] Redraw ([decimal[]]$LinesToRedraw) {

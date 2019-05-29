@@ -20,7 +20,6 @@ class BufferPanel : TextUIPanel {
     }
 
     # overrides
-
     [void] Draw ( [Canvas]$g, [decimal[]]$lineList ) {
         $EmptyLine = " ~ ".PadRight($g.BufferSize.x)
         $CurrentPageTop = ($this.Page * $this.WindowSize.y)
@@ -28,7 +27,7 @@ class BufferPanel : TextUIPanel {
         foreach ( $Line in $lineList ) {
             $BufferLine = $line + $CurrentPageTop
             if ($BufferLine -lt $this.DisplayBuffer.count){
-                if ($line -eq $this.CursorPos.y -and $this.ScreensRight -gt 0){
+                if ($BufferLine -eq $this.CursorPos.y -and $this.ScreensRight -gt 0) {
                     $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)
                     $g.write( 0,$line, $this.DisplayBuffer[$BufferLine].Substring($CurrentScreenLeft).PadRight($g.BufferSize.x) )
                 } else {
@@ -40,6 +39,12 @@ class BufferPanel : TextUIPanel {
             }
         }
         $this.CachedOrigin = [uipoint]::new($g.BufferStart.x,$g.BufferStart.y)
+    }
+
+    # overrides
+    [void] Redraw ([decimal[]]$LinesToRedraw) {
+        $CurrentPageTop = ($this.Page * $this.WindowSize.y)
+        ([TextUIPanel]$this).Redraw( ($LinesToRedraw | Foreach-Object {$_ - $CurrentPageTop}) )
     }
 
     [void] SetCursor ([decimal]$Left,[decimal]$Top) {
@@ -75,11 +80,11 @@ class BufferPanel : TextUIPanel {
 
             if ($this.CursorPos.x -lt $CurrentScreenLeft) {
                 $this.ScreensRight = [Math]::Floor( ($this.CursorPos.x / $this.WindowSize.x) )
-                $this.Redraw([console]::CursorTop)
+                $this.Redraw($this.CursorPos.y)
             }
             if ($this.CursorPos.x -gt $CurrentScreenRight) {
                 $this.ScreensRight = [Math]::Floor( ($this.CursorPos.x / $this.WindowSize.x) )
-                $this.Redraw([console]::CursorTop)
+                $this.Redraw($this.CursorPos.y)
             }
 
             $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)

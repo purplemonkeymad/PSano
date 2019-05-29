@@ -40,7 +40,7 @@
             "name": "PowerShell Interactive Session",
             "type": "PowerShell",
             "request": "launch",
-            "cwd": ""
+            "cwd": "${fileDirname}"
         },
         {
             "name": "PowerShell Attach Interactive Session Runspace",

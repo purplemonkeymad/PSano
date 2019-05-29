@@ -47,9 +47,7 @@ class BufferEditor {
     [void]UpdateDisplayBuffer(){
         $index = 0
         $displayPage = foreach ($_ in $this.EditorBuffer) {
-            #if ($index -le $this.Display.WindowSize.y) {
-                [string]::new( [char[]]$_ )
-            #}
+            [string]::new( [char[]]$_ )
             $index++
         }
         $this.Display.DisplayBuffer = $displayPage
@@ -57,14 +55,12 @@ class BufferEditor {
     }
 
     [void]UpdateDisplayBuffer([decimal]$Row) {
-        if ($Row -le $this.Display.WindowSize.y) {
             $this.Display.DisplayBuffer[$row] = [string]::new( [Char[]] $this.EditorBuffer[$row] )
             $this.Display.Redraw($row)
-        }
     }
 
     [void]RedrawLine([decimal]$line){
-        $this.UpdateDisplayBuffer($line)
+        $this.UpdateDisplayBuffer()
         $this.Display.Redraw($line)
     }
 
@@ -87,15 +83,18 @@ class BufferEditor {
         switch ($Dir) {
             #nav
             ([CursorDirection]::Up) {
-                $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
+                $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y - $Distance )
                 $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
             }
             ([CursorDirection]::Down) {
-                $this.CursorLocation.y = [Math]::Min($this.EditorBuffer.Count-1, $this.CursorLocation.y+1 )
+                # we should set the current line to redraw as it might be shifted to the right
+                $this.Display.Redraw($this.CursorLocation.y)
+                $this.CursorLocation.y = [Math]::Min($this.EditorBuffer.Count-1, $this.CursorLocation.y+$Distance )
                 $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
+                
             }
             ([CursorDirection]::Left) {
-                $this.CursorLocation.x = $this.CursorLocation.x -1
+                $this.CursorLocation.x = $this.CursorLocation.x -$Distance
                 if ($this.CursorLocation.x -lt 0 ){
                     if ($this.CursorLocation.y -ne 0){
                         $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y -1 )
@@ -106,7 +105,7 @@ class BufferEditor {
                 }
             }
             ([CursorDirection]::Right) {
-                $this.CursorLocation.x = $this.CursorLocation.x+1
+                $this.CursorLocation.x = $this.CursorLocation.x+$Distance
                 if ($this.CursorLocation.x -gt $this.EditorBuffer[$this.CursorLocation.y].Count) {
                     if ($this.CursorLocation.y -ne $this.EditorBuffer.Count-1){
                         $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y +1 )
@@ -115,6 +114,12 @@ class BufferEditor {
                         $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].Count
                     }
                 }
+            }
+            ([CursorDirection]::End) {
+                $this.CursorLocation.x = $this.EditorBuffer[$this.CursorLocation.y].count
+            }
+            ([CursorDirection]::Start) {
+                $this.CursorLocation.x = 0
             }
         }
         $this.Display.SetCursor($this.CursorLocation.x,$this.CursorLocation.y)
@@ -139,6 +144,18 @@ class BufferEditor {
                 }
                 ([Consolekey]::RightArrow) {
                     $this.MoveCursor([CursorDirection]::Right)
+                }
+                ([ConsoleKey]::End) {
+                    $this.MoveCursor([CursorDirection]::End) 
+                }
+                ([ConsoleKey]::Home) {
+                    $this.MoveCursor([CursorDirection]::Start )
+                }
+                ([ConsoleKey]::PageDown) {
+                    $this.MoveCursor([CursorDirection]::Down, $this.Display.WindowSize.y )
+                }
+                ([ConsoleKey]::PageUp) {
+                    $this.MoveCursor([CursorDirection]::Up, $this.Display.WindowSize.y )
                 }
                 Default {
                     $handled = $false
