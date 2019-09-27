@@ -3,7 +3,7 @@
                           "\\.private\\.ps.?1",
                           "\\\\private\\\\"
                       ],
-    "SettingsVersion":  4,
+    "SettingsVersion":  5,
     "ResetBuildNumberOnRelease":  true,
     "ResolveEPSOnInvoke":  false,
     "OnBuildRepository":  [
@@ -15,5 +15,7 @@
     "OnMajorRepository":  [
 
                           ],
+    "CompileCsFiles":  false,
+    "SingleFile":  true,
     "ModuleName":  "PSano"
 }
