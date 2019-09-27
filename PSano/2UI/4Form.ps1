@@ -16,6 +16,13 @@ class TextUIForm {
         $this.BufferOrigin = [UIPoint]::new([console]::CursorLeft,[console]::CursorTop)
         $this.WindowSize = [uipoint]::new([console]::BufferWidth,[Console]::WindowHeight)
         $this.RedrawAll = $true
+
+        ## ensure we have enough height to render the form.
+
+        $NeededTop = [Console]::CursorTop + [Console]::WindowHeight
+        if ($NeededTop -ge [Console]::BufferHeight) {
+            [Console]::BufferHeight = $NeededTop + 2 # for next prompt line.
+        }
     }
 
     [void]Redraw() {
