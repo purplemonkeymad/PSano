@@ -28,12 +28,18 @@ class BufferPanel : TextUIPanel {
             $BufferLine = $line + $CurrentPageTop
             if ($BufferLine -lt $this.DisplayBuffer.count){
                 if ($BufferLine -eq $this.CursorPos.y -and $this.ScreensRight -gt 0) {
+                    # if we are too long, then cut the section from the line we need.
                     $CurrentScreenLeft = ($this.ScreensRight * $this.WindowSize.x)
-                    $g.write( 0,$line, $this.DisplayBuffer[$BufferLine].Substring($CurrentScreenLeft).PadRight($g.BufferSize.x) )
+                    $DisplayLine = $this.DisplayBuffer[$BufferLine].Substring($CurrentScreenLeft).PadRight($g.BufferSize.x)
                 } else {
                     # we also pad here as we need to clear any underlying text
-                    $g.write( 0,$line, $this.DisplayBuffer[$BufferLine].PadRight($g.BufferSize.x) )
+                    $DisplayLine = $this.DisplayBuffer[$BufferLine].PadRight($g.BufferSize.x)
                 }
+
+                # some chars are an issue, such as tab so we should replace them on view but not back end
+                $DisplayLine = $DisplayLine -replace "`t",([char]16)
+
+                $g.write( 0,$line, $DisplayLine )
             } else {
                 $g.write( 0,$line, $EmptyLine)
             }
