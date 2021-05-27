@@ -82,6 +82,11 @@ function Edit-TextFile {
             $script:BufferEditor.HandleKey($_)
         }
 
+        $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
+        # extend buffer size now so we can be sure exit location is correct:
+        if ([console]::BufferHeight -lt $ExitCursorTop){
+            [console]::BufferHeight = $ExitCursorTop + 1
+        }
         $script:TextForm.Draw()
 
         $filename = $script:File.Path | Split-Path -Leaf
@@ -118,11 +123,7 @@ function Edit-TextFile {
         $script:Header.Redraw()
 
         # "main loop"
-        $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
-        # extend buffer size now so we can be sure exit location is correct:
-        if ([console]::BufferHeight -le $ExitCursorTop){
-            [console]::BufferHeight = $ExitCursorTop + 1
-        }
+
         try{
             while ($script:ShouldReadNextKey){
                 $script:TextForm.Draw()
