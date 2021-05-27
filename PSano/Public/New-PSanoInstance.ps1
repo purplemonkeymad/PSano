@@ -3,7 +3,9 @@ function Edit-TextFile {
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [string]$Path
+        [string]$Path,
+        [Parameter(Mandatory=$false)]
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
     
     begin {
@@ -11,7 +13,10 @@ function Edit-TextFile {
     
     process {
 
-        $script:File = $Path
+        $script:File = [pscustomobject]@{
+            Path = $Path
+            Session = $Session
+        }
 
         $script:ShouldReadNextKey = $true
 
@@ -36,7 +41,16 @@ function Edit-TextFile {
             },"Quit")
             [MenuHandle]::new([ConsoleKey]::O,[ConsoleModifiers]::Control,{
                 try {
-                    $script:BufferEditor.GetBuffer() | Set-Content -Path $script:File -ErrorAction Stop
+                    $Script:Header.Notice = "Saving..."
+                    $script:Header.Redraw()
+                    if ($script:File.Session){
+                        Invoke-Command -Session $script:File.Session -ScriptBlock {
+                            Param($Path,$Content)
+                            Set-Content -Path $Path -Value $Content 
+                        } -ArgumentList $script:File.Path,$script:BufferEditor.GetBuffer()
+                    } else {
+                        $script:BufferEditor.GetBuffer() | Set-Content -Path $script:File.Path -ErrorAction Stop
+                    }
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
                 } catch {
@@ -68,9 +82,29 @@ function Edit-TextFile {
             $script:BufferEditor.HandleKey($_)
         }
 
-        $filename = $path | Split-Path -Leaf
+        $script:TextForm.Draw()
+
+        $filename = $script:File.Path | Split-Path -Leaf
         $script:Header.Text = "PSano : $filename"
-        if (Test-Path -Path $path){
+        # need to pull from remote session 
+        $script:Header.Notice = "Loading file..."
+        $script:Header.Redraw()
+        if ($script:File.Session){
+            try {
+                $Content = Invoke-Command -Session $script:File.Session -ScriptBlock {
+                    Param($Path)
+                    # we are just going to support litterals for now.
+                    Get-Content -LiteralPath $path
+                } -ArgumentList $script:File.Path
+                if ($content.count -eq 0){
+                    $Content = [string[]]""
+                }
+                $BufferEditor.LoadBuffer( [string[]]$Content )
+            } catch {
+                throw $_
+                return
+            }
+        } elseif (Test-Path -Path $path){
             try {
                 $BufferEditor.LoadBuffer( (Get-Content $path) )
             } catch {
@@ -80,9 +114,15 @@ function Edit-TextFile {
         } else {
             $BufferEditor.LoadBuffer( [string[]]"" )
         }
+        $script:Header.Notice = $null
+        $script:Header.Redraw()
 
         # "main loop"
         $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
+        # extend buffer size now so we can be sure exit location is correct:
+        if ([console]::BufferHeight -le $ExitCursorTop){
+            [console]::BufferHeight = $ExitCursorTop + 1
+        }
         try{
             while ($script:ShouldReadNextKey){
                 $script:TextForm.Draw()
