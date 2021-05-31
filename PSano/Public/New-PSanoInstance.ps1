@@ -13,10 +13,7 @@ function Edit-TextFile {
     
     process {
 
-        $script:File = [pscustomobject]@{
-            Path = $Path
-            Session = $Session
-        }
+        $script:File = [psanoFile]$path
 
         $script:ShouldReadNextKey = $true
 
@@ -49,7 +46,7 @@ function Edit-TextFile {
                             Set-Content -Path $Path -Value $Content 
                         } -ArgumentList $script:File.Path,$script:BufferEditor.GetBuffer()
                     } else {
-                        $script:BufferEditor.GetBuffer() | Set-Content -Path $script:File.Path -ErrorAction Stop
+                        $script:File.writeFileContents($script:BufferEditor.GetBuffer())
                     }
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
@@ -89,7 +86,7 @@ function Edit-TextFile {
         }
         $script:TextForm.Draw()
 
-        $filename = $script:File.Path | Split-Path -Leaf
+        $filename = $script:File.FullPath | Split-Path -Leaf
         $script:Header.Text = "PSano : $filename"
         # need to pull from remote session 
         $script:Header.Notice = "Loading file..."
@@ -109,9 +106,9 @@ function Edit-TextFile {
                 throw $_
                 return
             }
-        } elseif (Test-Path -Path $path){
+        } elseif (Test-Path -Path $script:File.FullPath){
             try {
-                $BufferEditor.LoadBuffer( (Get-Content $path) )
+                $BufferEditor.LoadBuffer( $script:File.readFileContents() )
             } catch {
                 throw $_
                 return
