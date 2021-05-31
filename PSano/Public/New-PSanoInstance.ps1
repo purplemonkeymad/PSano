@@ -85,12 +85,17 @@ function Edit-TextFile {
 
         $script:BufferEditor = [BufferEditor]::new($Buffer)
 
-        # setup buffer to handle keys
+        # The default action should be hanled by the editor pane. As if it is
+        #  not a menu key, then it's probably a charater.
 
         $MainKeyListener.Default = {
             $script:BufferEditor.HandleKey($_)
         }
 
+        <#
+        We need to get all this information before the first draw, otherwise
+        we end up having the wrong exit location by the final draw position.
+        #>
         $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
         # extend buffer size now so we can be sure exit location is correct:
         if ([console]::BufferHeight -lt $ExitCursorTop){
@@ -104,9 +109,20 @@ function Edit-TextFile {
         $script:Header.Notice = "Loading file..."
         $script:Header.Redraw()
 
+        <#
+        The return here should kick us back to the console. The error would
+        appear after the last draw, the repeat of the finally block should
+        mean it appears *below* the ghost interface.
+        #>
         try {
             $BufferEditor.LoadBuffer( $File.readFileContents() )
         } catch {
+
+            #clean up if we are inturrpted.
+            [console]::CursorVisible = $true
+            [console]::CursorTop = $ExitCursorTop
+            [console]::CursorLeft = 0
+
             throw $_
             return
         }

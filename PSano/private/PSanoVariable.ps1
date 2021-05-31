@@ -1,9 +1,22 @@
+<#
+
+Variables are a bit harder than the others. Variables can have any
+type. So we can't be sure were are only getting strings. So we should
+save the type and try to convert back to it after editing.
+
+We can't get every type right, but what can you expect editing a variable
+with a text editor?
+
+#>
+
 class PSanoVariable : PSanoFile {
 
+    # Scope is typeless as the Scope can be either text or an integer. It's up to the user to select the right one.
     [type]$varType
     $Scope
 
     PSanoVariable ([string]$VariableName) : base ($VariableName) {
+        # the default is global will behave as expected for interative users.
         $this.Scope = 'Global'
         ## find type
         $this.varType  = (Get-Variable -Name $VariableName -Scope $this.Scope).Value.GetType()
@@ -33,8 +46,13 @@ class PSanoVariable : PSanoFile {
                 return [string[]](Get-Variable $this.FullPath).Value
             }
         }
-        # " default " nothing found code
-        # check if array/list type
+
+        <# 
+        " default " nothing found code
+        It seams cleaner to keep it away from the switch statement, but will be
+        functionaly the same.
+        #>
+        # check if array/list type, split on new line if it is not.
         $varValue = (Get-Variable $this.Fullpath).Value
         if ($varValue -is [System.Collections.IEnumerable]) {
             return [string[]](Get-Variable $this.FullPath).Value
@@ -45,6 +63,19 @@ class PSanoVariable : PSanoFile {
         }
     }
 
+    <#
+    
+    If we were crap shooting before with the types, here we
+    are shoveling shit.
+
+    If we know the type then we can *try* to call a string
+    constructor. Some objects won't be able to support this,
+    but for the types that do it will look magic.
+
+    Right now it will always try to succeed. But should I
+    be throwing exceptions back to the user?
+
+    #>
     [void] writeFileContents([string[]]$Content) {
         # complex assginment, use sub expression for clearer code
         $newValue = $(
@@ -64,10 +95,19 @@ class PSanoVariable : PSanoFile {
                 }
                 Default {
                     # test if is array type or not
+                    # there appears not to be a way to do this with `-is [type]` like you
+                    # can if you have the object.
                     if ($_.ImplementedInterfaces -contains [System.Collections.IEnumerable]) {
                         # is array like
                         $subtype = $_.GetElementType()
                         try {
+
+                            <# 
+                            [T[]] cast might work, but I feel if we do each object
+                            at least the valid ones could possibly be saved in the
+                            future. for now just bail.
+                            #>
+
                             foreach ($LineObject in $Content) {
                                 [System.Convert]::ChangeType($LineObject,$subtype)
                             }
@@ -91,7 +131,6 @@ class PSanoVariable : PSanoFile {
                 }
             }
         )
-        # scope 1 = parent scope
         Set-Variable -Name $this.FullPath -Scope $this.Scope -Value $newValue
     }
 

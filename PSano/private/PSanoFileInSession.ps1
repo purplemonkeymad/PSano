@@ -1,10 +1,19 @@
 using namespace System.Management.Automation.Runspaces
+
+<#
+
+Basically a re-implimentation of the base class, but putting
+everything inside an Invoke-Command.
+
+#>
+
+
 class PSanoFileInSession : PSanoFile {
 
     [PSSession]$session
 
     PSanoFileInSession ([string]$RemotePath, [PSSession]$PSSession) : base ($RemotePath) {
-        ## find type
+        ## Need to store the session.
         $this.session = $PSSession
     }
 
