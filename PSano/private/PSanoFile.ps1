@@ -9,7 +9,11 @@ class PSanoFile {
     [string[]] readFileContents() {
         if ($this.FullPath) {
             # pass issues to Get-Content
-            return (Get-Content -LiteralPath $this.FullPath -ErrorAction Stop)
+            if (Test-Path -LiteralPath $this.FullPath) {
+                return (Get-Content -LiteralPath $this.FullPath -ErrorAction Stop)
+            } else {
+                return [string[]]@()
+            }
         } else {
             # we want to return something.
             return [string[]]@()

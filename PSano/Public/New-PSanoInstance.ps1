@@ -1,10 +1,10 @@
 function Edit-TextFile {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName="LocalFile")]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,Position=0)]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$false,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
     
@@ -13,7 +13,13 @@ function Edit-TextFile {
     
     process {
 
-        $script:File = [psanoFile]$path
+        $script:File = switch ($PSCmdlet.ParameterSetName) {
+            Default { [psanoFile]$path }
+            "LocalFile" { [psanoFile]$path }
+            "RemoteFile" {
+                [PSanoFileInSession]::new($Path,$Session)
+            }
+        }
 
         $script:ShouldReadNextKey = $true
 
@@ -40,14 +46,9 @@ function Edit-TextFile {
                 try {
                     $Script:Header.Notice = "Saving..."
                     $script:Header.Redraw()
-                    if ($script:File.Session){
-                        Invoke-Command -Session $script:File.Session -ScriptBlock {
-                            Param($Path,$Content)
-                            Set-Content -Path $Path -Value $Content 
-                        } -ArgumentList $script:File.Path,$script:BufferEditor.GetBuffer()
-                    } else {
-                        $script:File.writeFileContents($script:BufferEditor.GetBuffer())
-                    }
+
+                    $script:File.writeFileContents($script:BufferEditor.GetBuffer())
+
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
                 } catch {
@@ -91,31 +92,14 @@ function Edit-TextFile {
         # need to pull from remote session 
         $script:Header.Notice = "Loading file..."
         $script:Header.Redraw()
-        if ($script:File.Session){
-            try {
-                $Content = Invoke-Command -Session $script:File.Session -ScriptBlock {
-                    Param($Path)
-                    # we are just going to support litterals for now.
-                    Get-Content -LiteralPath $path
-                } -ArgumentList $script:File.Path
-                if ($content.count -eq 0){
-                    $Content = [string[]]""
-                }
-                $BufferEditor.LoadBuffer( [string[]]$Content )
-            } catch {
-                throw $_
-                return
-            }
-        } elseif (Test-Path -Path $script:File.FullPath){
-            try {
-                $BufferEditor.LoadBuffer( $script:File.readFileContents() )
-            } catch {
-                throw $_
-                return
-            }
-        } else {
-            $BufferEditor.LoadBuffer( [string[]]"" )
+
+        try {
+            $BufferEditor.LoadBuffer( $script:File.readFileContents() )
+        } catch {
+            throw $_
+            return
         }
+
         $script:Header.Notice = $null
         $script:Header.Redraw()
 
