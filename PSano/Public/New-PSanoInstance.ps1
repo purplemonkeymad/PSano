@@ -8,7 +8,9 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
-        [string]$Variable
+        [string]$Variable,
+        [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
+        [string]$Function
     )
     
     begin {
@@ -24,6 +26,9 @@ function Edit-TextFile {
             }
             "Variable" {
                 [PSanoVariable]::new($Variable)
+            }
+            "Function" {
+                [PSanoFunction]::new($Function)
             }
         }
 

@@ -1,6 +1,6 @@
 class PSanoFile {
 
-    [string[]]$FullPath
+    [string]$FullPath
 
     PSanoFile([string]$FullPath) {
         $this.FullPath = $FullPath
