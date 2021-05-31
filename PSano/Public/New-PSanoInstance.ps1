@@ -1,11 +1,14 @@
 function Edit-TextFile {
     [CmdletBinding(DefaultParameterSetName="LocalFile")]
     param (
-        [Parameter(Mandatory,Position=0)]
+        [Parameter(Mandatory,ParameterSetName="LocalFile" ,Position=0)]
+        [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
-        [Parameter(Mandatory=$false,ParameterSetName="RemoteFile",Position=1)]
-        [System.Management.Automation.Runspaces.PSSession]$Session
+        [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
+        [System.Management.Automation.Runspaces.PSSession]$Session,
+        [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
+        [string]$Variable
     )
     
     begin {
@@ -13,11 +16,14 @@ function Edit-TextFile {
     
     process {
 
-        $script:File = switch ($PSCmdlet.ParameterSetName) {
+        $File = switch ($PSCmdlet.ParameterSetName) {
             Default { [psanoFile]$path }
             "LocalFile" { [psanoFile]$path }
             "RemoteFile" {
                 [PSanoFileInSession]::new($Path,$Session)
+            }
+            "Variable" {
+                [PSanoVariable]::new($Variable)
             }
         }
 
@@ -47,7 +53,7 @@ function Edit-TextFile {
                     $Script:Header.Notice = "Saving..."
                     $script:Header.Redraw()
 
-                    $script:File.writeFileContents($script:BufferEditor.GetBuffer())
+                    $File.writeFileContents($script:BufferEditor.GetBuffer())
 
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
@@ -87,14 +93,14 @@ function Edit-TextFile {
         }
         $script:TextForm.Draw()
 
-        $filename = $script:File.FullPath | Split-Path -Leaf
+        $filename = $File.FullPath | Split-Path -Leaf
         $script:Header.Text = "PSano : $filename"
         # need to pull from remote session 
         $script:Header.Notice = "Loading file..."
         $script:Header.Redraw()
 
         try {
-            $BufferEditor.LoadBuffer( $script:File.readFileContents() )
+            $BufferEditor.LoadBuffer( $File.readFileContents() )
         } catch {
             throw $_
             return
