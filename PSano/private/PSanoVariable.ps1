@@ -19,13 +19,23 @@ class PSanoVariable : PSanoFile {
         # the default is global will behave as expected for interative users.
         $this.Scope = 'Global'
         ## find type
-        $this.varType  = (Get-Variable -Name $VariableName -Scope $this.Scope).Value.GetType()
+        $VarObject = (Get-Variable -Name $VariableName -Scope $this.Scope -ErrorAction Ignore)
+        if ($VarObject) {
+            $this.varType  = $VarObject.Value.GetType()
+        } else {
+            $this.varType = [string[]]
+        }
     }
 
     PSanoVariable ([string]$VariableName,$scope) : base ($VariableName) {
         $this.Scope = $scope
         ## find type
-        $this.varType  = (Get-Variable -Name $VariableName -Scope $this.Scope).Value.GetType()
+        $VarObject = (Get-Variable -Name $VariableName -Scope $this.Scope -ErrorAction Ignore)
+        if ($VarObject) {
+            $this.varType  = $VarObject.Value.GetType()
+        } else {
+            $this.varType = [string[]]
+        }
     }
 
     # psano only edits strings, so we are going to convert to string anything we get
