@@ -20,9 +20,15 @@ class PSanoFunction : PSanoFile {
 
     [string[]] readFileContents() {
         $realPath = Join-Path 'function:\' -ChildPath $this.FullPath
-        return (
-            Get-Content -LiteralPath $realPath -ErrorAction Stop
-        ) -split "\n"
+        $Contents = try {
+            (Get-Content -LiteralPath $realPath -ErrorAction Stop) -split "\n"
+        } catch {
+            # if we get a new function we need to set the scope to global
+            # so it can be seen after exiting psano.
+            $this.FullPath = "global:" + $this.FullPath
+            [string[]]''
+        }
+        return $Contents
     }
 
     <#
