@@ -78,59 +78,58 @@ class PSanoVariable : PSanoFile {
     #>
     [void] writeFileContents([string[]]$Content) {
         # complex assginment, use sub expression for clearer code
-        $newValue = $(
-            ## common conversions back to stored type:
-            switch ($this.varType) {
-                [string[]] {
-                    # not much to do
-                    $Content
-                }
-                [string] {
-                    # new lines should be added to string
-                    $Content -join "`n"
-                }
-                [object[]] {
-                    # who knows, lets just use string array
-                    $Content
-                }
-                Default {
-                    # test if is array type or not
-                    # there appears not to be a way to do this with `-is [type]` like you
-                    # can if you have the object.
-                    if ($_.ImplementedInterfaces -contains [System.Collections.IEnumerable]) {
-                        # is array like
-                        $subtype = $_.GetElementType()
-                        try {
+        $newValue = switch ($this.varType) {
+            [string[]] {
+                # not much to do
+                $Content
+            }
+            [string] {
+                # new lines should be added to string
+                $Content -join "`n"
+            }
+            [object[]] {
+                # who knows, lets just use string array
+                $Content
+            }
+            Default {
+                # test if is array type or not
+                # there appears not to be a way to do this with `-is [type]` like you
+                # can if you have the object.
+                if ($_.ImplementedInterfaces -contains [System.Collections.IEnumerable]) {
+                    # is array like
+                    $subtype = $_.GetElementType()
+                    try {
 
-                            <# 
-                            [T[]] cast might work, but I feel if we do each object
-                            at least the valid ones could possibly be saved in the
-                            future. for now just bail.
-                            #>
+                        <# 
+                        [T[]] cast might work, but I feel if we do each object
+                        at least the valid ones could possibly be saved in the
+                        future. for now just bail.
+                        #>
 
-                            foreach ($LineObject in $Content) {
-                                [System.Convert]::ChangeType($LineObject,$subtype)
-                            }
-                        } catch {
-                            # give up and just output a string[]
-                            $Content 
+                        $tempValue = foreach ($LineObject in $Content) {
+                            $LineObject -as $subtype
                         }
-                    } else {
-                        # single type, we should concat lines with newline and try the old type
-                        try {
-                            [System.Convert]::ChangeType(
-                                ($Content -join "`n"),
-                                $_
-                            )
-                        } catch {
-                            # create single string value
-                            $Content -join "`n"
-                        }
-
+                        Set-Variable -Name $this.FullPath -Scope $this.Scope -Value ($tempValue -as $this.varType)
+                        return # jump out of the method (this is bad!)
+                    } catch {
+                        # give up and just output a string[]
+                        $Content 
                     }
+                } else {
+                    # single type, we should concat lines with newline and try the old type
+                    try {
+                        [System.Convert]::ChangeType(
+                            ($Content -join "`n"),
+                            $_
+                        )
+                    } catch {
+                        # create single string value
+                        $Content -join "`n"
+                    }
+
                 }
             }
-        )
+        }
         Set-Variable -Name $this.FullPath -Scope $this.Scope -Value $newValue
     }
 
