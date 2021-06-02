@@ -58,7 +58,7 @@ function Edit-TextFile {
                     $Script:Header.Notice = "Saving..."
                     $script:Header.Redraw()
 
-                    $File.writeFileContents($script:BufferEditor.GetBuffer())
+                    $File.writeFileContents($script:BufferEditor.GetBufferLines())
 
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()

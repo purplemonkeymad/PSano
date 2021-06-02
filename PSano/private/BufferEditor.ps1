@@ -37,11 +37,27 @@ class BufferEditor {
         $this.UpdateDisplayBuffer()
     }
 
+    <#
+    Retiveing actual charaters from the buffer.
+    #>
+
     [string]GetBuffer() {
         $AsLines = foreach ( $BufferLine in $this.EditorBuffer) {
             $BufferLine -join ''
         }
         return ($AsLines -join [System.Environment]::NewLine)
+    }
+
+    <#
+    Retrive actual charters, as an array of lines instead of 
+    as a whole block.
+    #>
+
+    [string[]]GetBufferLines() {
+        $AsLines = foreach ( $BufferLine in $this.EditorBuffer) {
+            $BufferLine -join ''
+        }
+        return $AsLines
     }
 
     [void]UpdateDisplayBuffer(){
