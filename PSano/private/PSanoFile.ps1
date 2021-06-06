@@ -34,11 +34,11 @@ class PSanoFile {
             if (Test-Path -LiteralPath $this.FullPath) {
                 return (Get-Content -LiteralPath $this.FullPath -ErrorAction Stop)
             } else {
-                return [string[]]@()
+                return [string[]]''
             }
         } else {
             # we want to return something.
-            return [string[]]@()
+            return [string[]]''
         }
     }
 
