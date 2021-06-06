@@ -31,9 +31,19 @@ class PSanoFileInSession : PSanoFile {
     }
 
     [void] writeFileContents([string[]]$Content) {
+        <#
+        ICM does not pass stop errors back to this session, we need to 
+        capture any errors and throw them in this session.        
+        #>
+        $RemoteErrors = @()
+        Clear-Variable -Force -Name RemoteErrors -ErrorAction Ignore
         Invoke-Command -Session $this.Session -ScriptBlock {
             Param($Path,$Content)
-            Set-Content -Path $Path -Value $Content 
-        } -ArgumentList $this.FullPath,$Content
+            Set-Content -Path $Path -Value $Content -ErrorAction Stop
+        } -ArgumentList $this.FullPath,$Content -ErrorVariable RemoteErrors -ErrorAction Stop
+        if ($RemoteErrors.count -gt 0) {
+            #errors found
+            throw $RemoteErrors[0] # can only throw one error.
+        }
     }
 }

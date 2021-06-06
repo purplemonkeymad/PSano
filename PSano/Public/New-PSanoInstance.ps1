@@ -63,7 +63,7 @@ function Edit-TextFile {
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
                 } catch {
-                    $script:Header.Notice = $_.Exception.Message
+                    $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
                     $script:Header.Redraw()
                 }
             },"Save")
