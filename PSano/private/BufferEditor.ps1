@@ -195,7 +195,7 @@ class BufferEditor {
                         $this.MoveCursor([CursorDirection]::Left)
                         # cursor shoud now be at previous line.
                         if ($CutLine.Length -gt 0) {
-                            $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine.ToCharArray())
+                            $this.EditorBuffer[$this.CursorLocation.y].AddRange([list[char]]$CutLine)
                         }
                         $this.RedrawBelow($this.CursorLocation.y)
                     }
@@ -207,7 +207,7 @@ class BufferEditor {
                             # remove line
                             $CutLine = $this.popLine($this.CursorLocation.y+1)
                             if ($CutLine.Length -gt 0) {
-                                $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine.ToCharArray())
+                                $this.EditorBuffer[$this.CursorLocation.y].AddRange([list[char]]$CutLine)
                             }
                             $this.RedrawBelow($this.CursorLocation.y)
                         }
@@ -275,6 +275,23 @@ class BufferEditor {
         $this.RedrawBelow($DocumentLine)
 
         return $ReturnValue
+    }
+
+    <#
+    Inserts a new line with given content, pushing down the given line. 
+    Ie the given line will be the line data and existing line indexes
+    will be increased.
+
+    @Param DocumentLine Line to push down for insert.
+    @Param LineData String to set line to.
+    #>
+
+    [void]insertLine([int]$DocumentLine,[string]$lineData) {
+        if ($DocumentLine -lt 0 -or $DocumentLine -ge $this.EditorBuffer.count) {
+            throw "Attempt to insert line: $DocumentLine, is out of Range."
+        }
+
+        $this.EditorBuffer.Insert($DocumentLine,[List[Char]]$lineData)
     }
 
 }
