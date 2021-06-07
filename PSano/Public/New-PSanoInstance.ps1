@@ -70,7 +70,9 @@ function Edit-TextFile {
             # k  or cut is closest to "cutline"
             [MenuHandle]::new([consoleKey]::K,[consoleModifiers]::Control,{
                 $line = $script:BufferEditor.popCurrentLine()
-                Set-Clipboard -Value $line
+                if (-not [string]::IsNullOrEmpty($line)) {
+                    Set-Clipboard -Value $line
+                }
             },"CutLine")
             # U or uncut is the closest to "paste"
             [MenuHandle]::new([ConsoleKey]::U,[ConsoleModifiers]::Control,{
