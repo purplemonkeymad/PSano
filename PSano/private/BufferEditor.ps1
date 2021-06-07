@@ -190,13 +190,12 @@ class BufferEditor {
                         $this.MoveCursor([CursorDirection]::Left)
                         $this.RedrawLine($this.CursorLocation.y)
                     } elseif ($this.CursorLocation.y -gt 0) {
-                        # remove line
-                        [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y]
-                        $this.EditorBuffer.RemoveAt($this.CursorLocation.y)
+
+                        $CutLine = $this.popLine($this.CursorLocation.y)
                         $this.MoveCursor([CursorDirection]::Left)
                         # cursor shoud now be at previous line.
-                        if ($CutLine.Count -gt 0) {
-                            $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                        if ($CutLine.Length -gt 0) {
+                            $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine.ToCharArray())
                         }
                         $this.RedrawBelow($this.CursorLocation.y)
                     }
@@ -206,12 +205,9 @@ class BufferEditor {
                     if ($this.CursorLocation.x -eq ($this.EditorBuffer[$this.CursorLocation.y].Count) ) {
                         if ( $this.CursorLocation.y -lt ($this.EditorBuffer.Count-1) ) { # if there is another line.
                             # remove line
-                            [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y+1]
-                            $this.EditorBuffer.RemoveAt($this.CursorLocation.y+1)
-                            #$this.MoveCursor([CursorDirection]::Left)
-                            # cursor shoud now be at previous line.
-                            if ($CutLine.Count -gt 0) {
-                                $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                            $CutLine = $this.popLine($this.CursorLocation.y+1)
+                            if ($CutLine.Length -gt 0) {
+                                $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine.ToCharArray())
                             }
                             $this.RedrawBelow($this.CursorLocation.y)
                         }
@@ -252,6 +248,33 @@ class BufferEditor {
             }
         }
         
+    }
+
+    <#
+    
+    Pop a line out of the current buffer, and return it's current charaters as a string.
+
+    lines are 0 indexed from the start of the document.
+
+    @Param DocumentLine Document line to pop.
+
+    #>
+
+    [string]popLine([int]$DocumentLine){
+        if ($DocumentLine -lt 0 -or $DocumentLine -ge $this.EditorBuffer.count) {
+            throw "Attempt to pop line: $DocumentLine, is out of Range."
+        }
+
+        $ReturnValue = $this.EditorBuffer[$DocumentLine] -join ''
+
+        # remove the line from the current buffer
+        $this.EditorBuffer.RemoveAt($DocumentLine)
+        if ($this.EditorBuffer.count -eq 0) {
+            $this.EditorBuffer.Add([List[char]]::new())
+        }
+        $this.RedrawBelow($DocumentLine)
+
+        return $ReturnValue
     }
 
 }
