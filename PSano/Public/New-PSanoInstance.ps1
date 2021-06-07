@@ -87,6 +87,9 @@ function Edit-TextFile {
                     $Clip.foreach({
                         $script:BufferEditor.insertLine($_)
                     })
+                } else {
+                    # -eq 0
+                    $script:BufferEditor.insertLine("")
                 }
             },"PasteLine")
 <#
