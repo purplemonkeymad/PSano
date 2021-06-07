@@ -3,7 +3,10 @@
                           "\\.private\\.ps.?1",
                           "\\\\private\\\\"
                       ],
-    "SettingsVersion":  5,
+    "ScriptsToProcessMask":  [
+                                 "\\\\ScriptsToProcess\\\\"
+                             ],
+    "SettingsVersion":  6,
     "ResetBuildNumberOnRelease":  true,
     "ResolveEPSOnInvoke":  false,
     "OnBuildRepository":  [

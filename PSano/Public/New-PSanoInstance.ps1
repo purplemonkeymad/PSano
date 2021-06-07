@@ -1,11 +1,16 @@
 function Edit-TextFile {
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName="LocalFile")]
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory,ParameterSetName="LocalFile" ,Position=0)]
+        [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
-        [Parameter(Mandatory=$false)]
-        [System.Management.Automation.Runspaces.PSSession]$Session
+        [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
+        [System.Management.Automation.Runspaces.PSSession]$Session,
+        [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
+        [string]$Variable,
+        [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
+        [string]$Function
     )
     
     begin {
@@ -13,9 +18,18 @@ function Edit-TextFile {
     
     process {
 
-        $script:File = [pscustomobject]@{
-            Path = $Path
-            Session = $Session
+        $File = switch ($PSCmdlet.ParameterSetName) {
+            Default { [psanoFile]$path }
+            "LocalFile" { [psanoFile]$path }
+            "RemoteFile" {
+                [PSanoFileInSession]::new($Path,$Session)
+            }
+            "Variable" {
+                [PSanoVariable]::new($Variable)
+            }
+            "Function" {
+                [PSanoFunction]::new($Function)
+            }
         }
 
         $script:ShouldReadNextKey = $true
@@ -43,18 +57,13 @@ function Edit-TextFile {
                 try {
                     $Script:Header.Notice = "Saving..."
                     $script:Header.Redraw()
-                    if ($script:File.Session){
-                        Invoke-Command -Session $script:File.Session -ScriptBlock {
-                            Param($Path,$Content)
-                            Set-Content -Path $Path -Value $Content 
-                        } -ArgumentList $script:File.Path,$script:BufferEditor.GetBuffer()
-                    } else {
-                        $script:BufferEditor.GetBuffer() | Set-Content -Path $script:File.Path -ErrorAction Stop
-                    }
+
+                    $File.writeFileContents($script:BufferEditor.GetBufferLines())
+
                     $script:Header.Notice = "Saved."
                     $script:Header.Redraw()
                 } catch {
-                    $script:Header.Notice = $_.Exception.Message
+                    $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
                     $script:Header.Redraw()
                 }
             },"Save")
@@ -76,12 +85,17 @@ function Edit-TextFile {
 
         $script:BufferEditor = [BufferEditor]::new($Buffer)
 
-        # setup buffer to handle keys
+        # The default action should be hanled by the editor pane. As if it is
+        #  not a menu key, then it's probably a charater.
 
         $MainKeyListener.Default = {
             $script:BufferEditor.HandleKey($_)
         }
 
+        <#
+        We need to get all this information before the first draw, otherwise
+        we end up having the wrong exit location by the final draw position.
+        #>
         $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
         # extend buffer size now so we can be sure exit location is correct:
         if ([console]::BufferHeight -lt $ExitCursorTop){
@@ -89,36 +103,30 @@ function Edit-TextFile {
         }
         $script:TextForm.Draw()
 
-        $filename = $script:File.Path | Split-Path -Leaf
+        $filename = $File.FullPath | Split-Path -Leaf
         $script:Header.Text = "PSano : $filename"
         # need to pull from remote session 
         $script:Header.Notice = "Loading file..."
         $script:Header.Redraw()
-        if ($script:File.Session){
-            try {
-                $Content = Invoke-Command -Session $script:File.Session -ScriptBlock {
-                    Param($Path)
-                    # we are just going to support litterals for now.
-                    Get-Content -LiteralPath $path
-                } -ArgumentList $script:File.Path
-                if ($content.count -eq 0){
-                    $Content = [string[]]""
-                }
-                $BufferEditor.LoadBuffer( [string[]]$Content )
-            } catch {
-                throw $_
-                return
-            }
-        } elseif (Test-Path -Path $path){
-            try {
-                $BufferEditor.LoadBuffer( (Get-Content $path) )
-            } catch {
-                throw $_
-                return
-            }
-        } else {
-            $BufferEditor.LoadBuffer( [string[]]"" )
+
+        <#
+        The return here should kick us back to the console. The error would
+        appear after the last draw, the repeat of the finally block should
+        mean it appears *below* the ghost interface.
+        #>
+        try {
+            $BufferEditor.LoadBuffer( $File.readFileContents() )
+        } catch {
+
+            #clean up if we are inturrpted.
+            [console]::CursorVisible = $true
+            [console]::CursorTop = $ExitCursorTop
+            [console]::CursorLeft = 0
+
+            throw $_
+            return
         }
+
         $script:Header.Notice = $null
         $script:Header.Redraw()
 
