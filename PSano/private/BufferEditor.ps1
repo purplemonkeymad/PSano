@@ -276,6 +276,13 @@ class BufferEditor {
 
         return $ReturnValue
     }
+    <#
+    pop line at current cursor position.
+    #>
+
+    [string]popCurrentLine() {
+        return $this.popLine($this.CursorLocation.y)
+    }
 
     <#
     Inserts a new line with given content, pushing down the given line. 
@@ -292,6 +299,14 @@ class BufferEditor {
         }
 
         $this.EditorBuffer.Insert($DocumentLine,[List[Char]]$lineData)
+        $this.RedrawBelow($DocumentLine)
+    }
+
+    <#
+    Inserts a new line with data, at the current cursor position.
+    #>
+    [void]insertLine([string]$lineData) {
+        $this.insertLine($this.CursorLocation.y,$lineData)
     }
 
 }
