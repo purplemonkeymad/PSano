@@ -228,11 +228,9 @@ class BufferEditor {
                     } else {
                         # middle of line
                         $LineRemaning = $this.EditorBuffer[$this.CursorLocation.y].Count - $this.CursorLocation.x
-                        $NewLine = [char[]]::new($LineRemaning)
-                        $this.EditorBuffer[$this.CursorLocation.y].CopyTo($this.CursorLocation.x,$NewLine,0,$LineRemaning)
+                        $NewLine = $this.EditorBuffer[$this.CursorLocation.y][$this.CursorLocation.x..$this.EditorBuffer[$this.CursorLocation.y].Count] -join ''
                         $this.EditorBuffer[$this.CursorLocation.y].RemoveRange($this.CursorLocation.x,$LineRemaning)
-                        $this.EditorBuffer.Insert($this.CursorLocation.y+1,([list[char]]$NewLine))
-                        $this.RedrawBelow($this.CursorLocation.y)
+                        $this.insertLine($this.CursorLocation.y+1,$NewLine)
                         $this.MoveCursor([CursorDirection]::Right)
                     }
                 }
