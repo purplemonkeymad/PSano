@@ -138,6 +138,10 @@ class BufferEditor {
                 $this.CursorLocation.x = 0
             }
         }
+        $this.updateCursorDisplayPosition()
+    }
+
+    [void]updateCursorDisplayPosition() {
         $this.Display.SetCursor($this.CursorLocation.x,$this.CursorLocation.y)
     }
 
@@ -271,6 +275,7 @@ class BufferEditor {
             $this.EditorBuffer.Add([List[char]]::new())
         }
         $this.RedrawBelow($DocumentLine)
+        $this.updateInvalidCursorPosition()
 
         return $ReturnValue
     }
@@ -298,6 +303,7 @@ class BufferEditor {
 
         $this.EditorBuffer.Insert($DocumentLine,[List[Char]]$lineData)
         $this.RedrawBelow($DocumentLine)
+        $this.updateInvalidCursorPosition()
     }
 
     <#
@@ -305,6 +311,24 @@ class BufferEditor {
     #>
     [void]insertLine([string]$lineData) {
         $this.insertLine($this.CursorLocation.y,$lineData)
+    }
+
+    <#
+    It's possible that the cursor position will end up moving outside of
+    the current buffer. This method should correct this when if it happens.
+    #>
+
+    [void]updateInvalidCursorPosition() {
+        # move y back in bounds
+        $this.CursorLocation.y = [Math]::Min($this.CursorLocation.y,$this.EditorBuffer.Count-1)
+        $this.CursorLocation.y = [Math]::Max($this.CursorLocation.y,0)
+
+        # move x back in bounds on current line
+
+        $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].Count)
+        $this.CursorLocation.x = [Math]::Max($this.CursorLocation.x,0)
+
+        $this.updateCursorDisplayPosition()
     }
 
 }
