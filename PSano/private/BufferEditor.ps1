@@ -138,6 +138,10 @@ class BufferEditor {
                 $this.CursorLocation.x = 0
             }
         }
+        $this.updateCursorDisplayPosition()
+    }
+
+    [void]updateCursorDisplayPosition() {
         $this.Display.SetCursor($this.CursorLocation.x,$this.CursorLocation.y)
     }
 
@@ -190,13 +194,12 @@ class BufferEditor {
                         $this.MoveCursor([CursorDirection]::Left)
                         $this.RedrawLine($this.CursorLocation.y)
                     } elseif ($this.CursorLocation.y -gt 0) {
-                        # remove line
-                        [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y]
-                        $this.EditorBuffer.RemoveAt($this.CursorLocation.y)
+
+                        $CutLine = $this.popLine($this.CursorLocation.y)
                         $this.MoveCursor([CursorDirection]::Left)
                         # cursor shoud now be at previous line.
-                        if ($CutLine.Count -gt 0) {
-                            $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                        if ($CutLine.Length -gt 0) {
+                            $this.EditorBuffer[$this.CursorLocation.y].AddRange([list[char]]$CutLine)
                         }
                         $this.RedrawBelow($this.CursorLocation.y)
                     }
@@ -206,12 +209,9 @@ class BufferEditor {
                     if ($this.CursorLocation.x -eq ($this.EditorBuffer[$this.CursorLocation.y].Count) ) {
                         if ( $this.CursorLocation.y -lt ($this.EditorBuffer.Count-1) ) { # if there is another line.
                             # remove line
-                            [list[char]]$CutLine = $this.EditorBuffer[$this.CursorLocation.y+1]
-                            $this.EditorBuffer.RemoveAt($this.CursorLocation.y+1)
-                            #$this.MoveCursor([CursorDirection]::Left)
-                            # cursor shoud now be at previous line.
-                            if ($CutLine.Count -gt 0) {
-                                $this.EditorBuffer[$this.CursorLocation.y].AddRange($CutLine)
+                            $CutLine = $this.popLine($this.CursorLocation.y+1)
+                            if ($CutLine.Length -gt 0) {
+                                $this.EditorBuffer[$this.CursorLocation.y].AddRange([list[char]]$CutLine)
                             }
                             $this.RedrawBelow($this.CursorLocation.y)
                         }
@@ -232,11 +232,9 @@ class BufferEditor {
                     } else {
                         # middle of line
                         $LineRemaning = $this.EditorBuffer[$this.CursorLocation.y].Count - $this.CursorLocation.x
-                        $NewLine = [char[]]::new($LineRemaning)
-                        $this.EditorBuffer[$this.CursorLocation.y].CopyTo($this.CursorLocation.x,$NewLine,0,$LineRemaning)
+                        $NewLine = $this.EditorBuffer[$this.CursorLocation.y][$this.CursorLocation.x..$this.EditorBuffer[$this.CursorLocation.y].Count] -join ''
                         $this.EditorBuffer[$this.CursorLocation.y].RemoveRange($this.CursorLocation.x,$LineRemaning)
-                        $this.EditorBuffer.Insert($this.CursorLocation.y+1,([list[char]]$NewLine))
-                        $this.RedrawBelow($this.CursorLocation.y)
+                        $this.insertLine($this.CursorLocation.y+1,$NewLine)
                         $this.MoveCursor([CursorDirection]::Right)
                     }
                 }
@@ -252,6 +250,85 @@ class BufferEditor {
             }
         }
         
+    }
+
+    <#
+    
+    Pop a line out of the current buffer, and return it's current charaters as a string.
+
+    lines are 0 indexed from the start of the document.
+
+    @Param DocumentLine Document line to pop.
+
+    #>
+
+    [string]popLine([int]$DocumentLine){
+        if ($DocumentLine -lt 0 -or $DocumentLine -ge $this.EditorBuffer.count) {
+            throw "Attempt to pop line: $DocumentLine, is out of Range."
+        }
+
+        $ReturnValue = $this.EditorBuffer[$DocumentLine] -join ''
+
+        # remove the line from the current buffer
+        $this.EditorBuffer.RemoveAt($DocumentLine)
+        if ($this.EditorBuffer.count -eq 0) {
+            $this.EditorBuffer.Add([List[char]]::new())
+        }
+        $this.RedrawBelow($DocumentLine)
+        $this.updateInvalidCursorPosition()
+
+        return $ReturnValue
+    }
+    <#
+    pop line at current cursor position.
+    #>
+
+    [string]popCurrentLine() {
+        return $this.popLine($this.CursorLocation.y)
+    }
+
+    <#
+    Inserts a new line with given content, pushing down the given line. 
+    Ie the given line will be the line data and existing line indexes
+    will be increased.
+
+    @Param DocumentLine Line to push down for insert.
+    @Param LineData String to set line to.
+    #>
+
+    [void]insertLine([int]$DocumentLine,[string]$lineData) {
+        if ($DocumentLine -lt 0 -or $DocumentLine -ge $this.EditorBuffer.count) {
+            throw "Attempt to insert line: $DocumentLine, is out of Range."
+        }
+
+        $this.EditorBuffer.Insert($DocumentLine,[List[Char]]$lineData)
+        $this.RedrawBelow($DocumentLine)
+        $this.updateInvalidCursorPosition()
+    }
+
+    <#
+    Inserts a new line with data, at the current cursor position.
+    #>
+    [void]insertLine([string]$lineData) {
+        $this.insertLine($this.CursorLocation.y,$lineData)
+    }
+
+    <#
+    It's possible that the cursor position will end up moving outside of
+    the current buffer. This method should correct this when if it happens.
+    #>
+
+    [void]updateInvalidCursorPosition() {
+        # move y back in bounds
+        $this.CursorLocation.y = [Math]::Min($this.CursorLocation.y,$this.EditorBuffer.Count-1)
+        $this.CursorLocation.y = [Math]::Max($this.CursorLocation.y,0)
+
+        # move x back in bounds on current line
+
+        $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].Count)
+        $this.CursorLocation.x = [Math]::Max($this.CursorLocation.x,0)
+
+        $this.updateCursorDisplayPosition()
     }
 
 }

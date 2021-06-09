@@ -67,6 +67,31 @@ function Edit-TextFile {
                     $script:Header.Redraw()
                 }
             },"Save")
+            # k  or cut is closest to "cutline"
+            [MenuHandle]::new([consoleKey]::K,[consoleModifiers]::Control,{
+                $line = $script:BufferEditor.popCurrentLine()
+                if (-not [string]::IsNullOrEmpty($line)) {
+                    Set-Clipboard -Value $line
+                }
+            },"CutLine")
+            # U or uncut is the closest to "paste"
+            [MenuHandle]::new([ConsoleKey]::U,[ConsoleModifiers]::Control,{
+                [string[]]$Clip = Get-Clipboard
+                if ($clip.count -gt 0) {
+                    # if there is more that one line, we need to paste
+                    # the last line first so that the lines before
+                    # appear above.
+
+                    [array]::Reverse($clip)
+
+                    $Clip.foreach({
+                        $script:BufferEditor.insertLine($_)
+                    })
+                } else {
+                    # -eq 0
+                    $script:BufferEditor.insertLine("")
+                }
+            },"PasteLine")
 <#
             [MenuHandle]::new([System.ConsoleKey]::R,[System.ConsoleModifiers]::Control,{
                 $script:TextForm.Redraw()
