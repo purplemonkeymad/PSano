@@ -7,6 +7,8 @@ function Edit-TextFile {
         [string]$Path,
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
+        [parameter(ParameterSetName="LocalFile")]
+        [System.Text.Encoding]$Encoding,
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
         [string]$Variable,
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
@@ -18,9 +20,12 @@ function Edit-TextFile {
     
     process {
 
+        if (-not $Encoding){
+            $Encoding = [System.Text.Encoding]::Default
+        }
         $File = switch ($PSCmdlet.ParameterSetName) {
-            Default { [psanoFile]$path }
-            "LocalFile" { [psanoFile]$path }
+            Default { [psanoFile]::new($Path, $Encoding) }
+            "LocalFile" { [psanoFile]::new($Path, $Encoding) }
             "RemoteFile" {
                 [PSanoFileInSession]::new($Path,$Session)
             }
