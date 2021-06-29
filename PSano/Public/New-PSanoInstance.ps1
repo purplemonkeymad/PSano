@@ -8,6 +8,10 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
         [parameter(ParameterSetName="LocalFile")]
+        [ArgumentCompleter({
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            return [System.Text.Encoding]::GetEncodings().Name.Where({$_ -like "$wordToComplete*"})
+        })]
         [System.Text.Encoding]$Encoding,
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
         [string]$Variable,
