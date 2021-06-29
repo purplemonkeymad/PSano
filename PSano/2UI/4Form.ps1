@@ -34,6 +34,11 @@ class TextUIForm {
     }
 
     [void]Draw() {
+        $InitTop = [console]::CursorTop
+        # push cursor to bottom edge to scroll screen
+        [console]::CursorTop = $this.BufferOrigin.y + $this.WindowSize.y - 1
+        # put it back where it was
+        [console]::CursorTop = $InitTop
         if ($this.RedrawAll){
             $this.Draw(0..$this.WindowSize.y)
             $this.RedrawAll = $false
