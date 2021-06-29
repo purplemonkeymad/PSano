@@ -80,17 +80,34 @@ class Canvas {
                 return # we are outsize of draw area do nothing
             }
 
-        #set the draw start
-        [console]::CursorTop = $this.BufferStart.y + $StartTop
-        [console]::CursorLeft = $this.BufferStart.x + $StartLeft
+        $thishost = Get-Host
+        $BufferLength = $thishost.ui.RawUI.LengthInBufferCells($Text)
+        $maxLength = ($this.BufferSize.x - $StartLeft)
+        if ($BufferLength -gt $maxLength){
+            # need to crop to length, so it should be exactly the right length
+            $newText = $Text.Substring(0,$maxLength)
+            if ($thishost.ui.RawUI.LengthInBufferCells($newText) -lt $maxLength) {
+                $TexttoFill = [System.Collections.Generic.Queue[char]][char[]]$Text.Substring($maxLength)
+                do {
+                    $newText = $newText + $TexttoFill.Dequeue()
+                } while ($thishost.ui.RawUI.LengthInBufferCells($newText) -lt $maxLength)
+            }
+            
+            $text = $newText
+        }
 
-        # trim text
-        $ValidText = $Text -replace "`n|`r",''
-        $Validlength = [Math]::Min($ValidText.Length, $this.BufferSize.x - $StartLeft)
-        $ValidText = $ValidText.Substring(0,$Validlength)
-
-        [console]::Write($ValidText)
-        
+        $thishost.ui.RawUI.SetBufferContents(
+            [System.Management.Automation.Host.Coordinates]::new(
+                ($this.BufferStart.x + $StartLeft),
+                ($this.BufferStart.y + $StartTop)
+            ),
+            $thishost.ui.RawUI.NewBufferCellArray(
+                $Text,
+                [console]::ForegroundColor,
+                [console]::BackgroundColor
+            )
+        )
+       
     }
 
 }
