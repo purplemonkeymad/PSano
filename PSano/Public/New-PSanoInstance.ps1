@@ -25,10 +25,13 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
         [string]$Variable,
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
-        [string]$Function
+        [string]$Function,
+        [Parameter(DontShow)]
+        [switch]$Rainbow
     )
     
     begin {
+        $colourList = [enum]::GetNames([System.ConsoleColor])
     }
     
     process {
@@ -186,19 +189,28 @@ function Edit-TextFile {
 
         # "main loop"
 
+        
+
         try{
+            $drawCount = 0
+            $startColour = [console]::ForegroundColor
             while ($script:ShouldReadNextKey){
                 $script:TextForm.Draw()
                 $script:Header.Notice = $null
                 $script:Header.Redraw()
                 $Buffer.UpdateCursor()
                 $MainKeyListener.ReadKey()
+                if ($Rainbow){
+                    [console]::ForegroundColor = $colourList[$drawCount % $colourList.Count]
+                }
+                $drawCount++
             }
         } finally {
             #clean up if we are inturrpted.
             [console]::CursorVisible = $true
             [console]::CursorTop = $ExitCursorTop
             [console]::CursorLeft = 0
+            [console]::ForegroundColor = $startColour
         }
     }
     
