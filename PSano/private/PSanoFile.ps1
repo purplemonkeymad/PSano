@@ -12,14 +12,15 @@ The base implimentation is for local files.
 class PSanoFile {
 
     [string]$FullPath
-    [System.Text.Encoding]$Encoding = [System.Text.Encoding]::Default
+    # must use object here as ps5&7 have different types for get-content parameters.
+    [object]$Encoding = "Default"
 
     # PSano has and had no idea of a memory only file, all files have a save location before they are opened.
     PSanoFile([string]$FullPath) {
         $this.FullPath = $FullPath
     }
 
-    PSanoFile([string]$FullPath, [System.Text.Encoding]$Encoding) {
+    PSanoFile([string]$FullPath, [object]$Encoding) {
         $this.FullPath = $FullPath
         $this.Encoding = $Encoding
     }

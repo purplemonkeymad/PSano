@@ -8,11 +8,20 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
         [parameter(ParameterSetName="LocalFile")]
+        [parameter(ParameterSetName="RemoteFile")]
         [ArgumentCompleter({
             param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
-            return [System.Text.Encoding]::GetEncodings().Name.Where({$_ -like "$wordToComplete*"})
+            $GetContentCommand = Get-Command Get-Content
+            if ($GetContentCommand.Parameters.Encoding.ParameterType.fullName -eq 'Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding'){
+                # 5.1
+                return ([enum]::GetNames([Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding])).Where({$_ -like "$wordToComplete*"})
+            } elseif ($GetContentCommand.Parameters.Encoding.ParameterType -eq [System.Text.Encoding]) {
+                #6+
+                return [System.Text.Encoding]::GetEncodings().Name.Where({$_ -like "$wordToComplete*"})
+            }
+            
         })]
-        [System.Text.Encoding]$Encoding,
+        [object]$Encoding,
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
         [string]$Variable,
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
@@ -25,13 +34,24 @@ function Edit-TextFile {
     process {
 
         if (-not $Encoding){
-            $Encoding = [System.Text.Encoding]::Default
+            $Encoding = "Default"
+        } else {
+            $GetContentCommand = Get-Command Get-Content
+            # have to use string for this comparison as ps7+ does not have this
+            # class and the comparison would cause an exception instead.
+            if ($GetContentCommand.Parameters.Encoding.ParameterType.fullName -eq 'Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding'){
+                # 5.1
+                $Encoding = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$Encoding
+            } elseif ($GetContentCommand.Parameters.Encoding.ParameterType -eq [System.Text.Encoding]) {
+                #6+
+                $Encoding = [System.Text.Encoding]::GetEncoding($Encoding)
+            }
         }
         $File = switch ($PSCmdlet.ParameterSetName) {
             Default { [psanoFile]::new($Path, $Encoding) }
             "LocalFile" { [psanoFile]::new($Path, $Encoding) }
             "RemoteFile" {
-                [PSanoFileInSession]::new($Path,$Session)
+                [PSanoFileInSession]::new($Path,$Session,$Encoding)
             }
             "Variable" {
                 [PSanoVariable]::new($Variable)

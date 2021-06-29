@@ -15,6 +15,13 @@ class PSanoFileInSession : PSanoFile {
     PSanoFileInSession ([string]$RemotePath, [PSSession]$PSSession) : base ($RemotePath) {
         ## Need to store the session.
         $this.session = $PSSession
+        $this.Encoding = "Default"
+    }
+
+    PSanoFileInSession ([string]$RemotePath, [PSSession]$PSSession, [object]$Encoding) : base ($RemotePath) {
+        ## Need to store the session.
+        $this.session = $PSSession
+        $this.Encoding = $Encoding
     }
 
     # we need to do the same as the local class but in a remote session
@@ -26,10 +33,10 @@ class PSanoFileInSession : PSanoFile {
         $RemoteErrors = @()
         Clear-Variable -Force -Name RemoteErrors -ErrorAction Ignore
         $Content = Invoke-Command -Session $this.Session -ScriptBlock {
-            Param($Path)
+            Param($Path,$Encoding)
             # we are just going to support litterals for now.
-            Get-Content -LiteralPath $path
-        } -ArgumentList $this.FullPath -ErrorVariable RemoteErrors -ErrorAction SilentlyContinue
+            Get-Content -LiteralPath $path -Encoding $Encoding
+        } -ArgumentList $this.FullPath,$this.Encoding -ErrorVariable RemoteErrors -ErrorAction SilentlyContinue
 
         if ($RemoteErrors.count -gt 0) {
             #errors found
@@ -53,9 +60,9 @@ class PSanoFileInSession : PSanoFile {
         $RemoteErrors = @()
         Clear-Variable -Force -Name RemoteErrors -ErrorAction Ignore
         Invoke-Command -Session $this.Session -ScriptBlock {
-            Param($Path,$Content)
-            Set-Content -Path $Path -Value $Content -ErrorAction Stop
-        } -ArgumentList $this.FullPath,$Content -ErrorVariable RemoteErrors -ErrorAction Stop
+            Param($Path,$Content,$Encoding)
+            Set-Content -Path $Path -Value $Content -Encoding $Encoding -ErrorAction Stop
+        } -ArgumentList $this.FullPath,$Content,$this.Encoding -ErrorVariable RemoteErrors -ErrorAction Stop
         if ($RemoteErrors.count -gt 0) {
             #errors found
             throw $RemoteErrors[0] # can only throw one error.
