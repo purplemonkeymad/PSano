@@ -196,8 +196,11 @@ function Edit-TextFile {
             $startColour = [console]::ForegroundColor
             while ($script:ShouldReadNextKey){
                 $script:TextForm.Draw()
-                $script:Header.Notice = $null
-                $script:Header.Redraw()
+                # clear notice now that we have drawn it once. and trigger draw for next round.
+                if ($script:Header.Notice){
+                    $script:Header.Notice = $null
+                    $script:Header.Redraw()
+                }
                 $Buffer.UpdateCursor()
                 $MainKeyListener.ReadKey()
                 if ($Rainbow){
