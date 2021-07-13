@@ -81,6 +81,7 @@ NestedModules = @('.\1KeyEvents\1KeyHandle.ps1',
                '.\private\PSanoClipboard.ps1', 
                '.\private\PSanoFileInSession.ps1', 
                '.\private\PSanoFunction.ps1', 
+               '.\private\PSanoJsonVar.ps1', 
                '.\private\PSanoVariable.ps1', 
                '.\private\RemoveEvent.ps1', 
                '.\Public\Aliases.ps1', 
@@ -112,8 +113,9 @@ FileList = 'PSano.psd1', 'puild.json', 'test.txt', '1KeyEvents\1KeyHandle.ps1',
                'private\BufferEditor.ps1', 'private\Headerpanel.ps1', 
                'private\MenuPanel.ps1', 'private\PSanoClipboard.ps1', 
                'private\PSanoFileInSession.ps1', 'private\PSanoFunction.ps1', 
-               'private\PSanoVariable.ps1', 'private\RemoveEvent.ps1', 
-               'Public\Aliases.ps1', 'Public\New-PSanoInstance.ps1'
+               'private\PSanoJsonVar.ps1', 'private\PSanoVariable.ps1', 
+               'private\RemoveEvent.ps1', 'Public\Aliases.ps1', 
+               'Public\New-PSanoInstance.ps1'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
