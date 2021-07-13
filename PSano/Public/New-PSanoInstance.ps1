@@ -25,7 +25,9 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
         [string]$Variable,
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
-        [string]$Function
+        [string]$Function,
+        [Parameter(Mandatory,ParameterSetName="Clipboard",Position=0)]
+        [switch]$Clipboard
     )
     
     begin {
@@ -58,6 +60,9 @@ function Edit-TextFile {
             }
             "Function" {
                 [PSanoFunction]::new($Function)
+            }
+            "Clipboard" {
+                [PSanoClipboard]::new()
             }
         }
 
