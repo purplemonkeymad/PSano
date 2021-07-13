@@ -27,6 +27,8 @@ function Edit-TextFile {
         [Parameter(Mandatory=0,ParameterSetName="Variable",Position=1)]
         [ValidateSet("String","Json")]
         [string]$EditMode = "String",
+        [Parameter(Mandatory=0,ParameterSetName="Variable",Position=2)]
+        [int]$Depth,
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
         [string]$Function,
         [Parameter(Mandatory,ParameterSetName="Clipboard",Position=0)]
@@ -60,7 +62,13 @@ function Edit-TextFile {
             }
             "Variable" {
                 switch ($EditMode) {
-                    "Json"   { [PSanoJsonVariable]::new($Variable) }
+                    "Json"   { 
+                        if ($Depth) {
+                            [PSanoJsonVariable]::new($Variable,'Global',$Depth)
+                        } else {
+                            [PSanoJsonVariable]::new($Variable)
+                        }
+                    }
                     "String" { [PSanoVariable]::new($Variable) }
                     Default  { [PSanoVariable]::new($Variable) }
                 }

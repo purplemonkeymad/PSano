@@ -23,6 +23,7 @@ class PSanoJsonVariable : PSanoFile {
     }
     PSanoJsonVariable ([string]$VariableName,$scope,[int]$Depth) : base ($VariableName) {
         $this.Scope = $scope
+        $this.Depth = $Depth
     }
 
     # psano only edits strings, so we are going to convert to string anything we get
