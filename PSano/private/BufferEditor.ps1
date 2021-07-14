@@ -297,8 +297,8 @@ class BufferEditor {
     #>
 
     [void]insertLine([int]$DocumentLine,[string]$lineData) {
-        if ($DocumentLine -lt 0 -or $DocumentLine -ge $this.EditorBuffer.count) {
-            throw "Attempt to insert line: $DocumentLine, is out of Range."
+        if ($DocumentLine -lt 0 -or $DocumentLine -gt $this.EditorBuffer.count) {
+            throw "Attempt to insert line: $DocumentLine, is out of Range. Min value is 0 max current value is $($this.EditorBuffer.count)"
         }
 
         $this.EditorBuffer.Insert($DocumentLine,[List[Char]]$lineData)
