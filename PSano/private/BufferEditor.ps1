@@ -99,6 +99,8 @@ class BufferEditor {
         switch ($Dir) {
             #nav
             ([CursorDirection]::Up) {
+                # we should set the current line to redraw as it might be shifted to the right
+                $this.Display.Redraw($this.CursorLocation.y)
                 $this.CursorLocation.y = [Math]::Max(0, $this.CursorLocation.y - $Distance )
                 $this.CursorLocation.x = [Math]::Min($this.CursorLocation.x,$this.EditorBuffer[$this.CursorLocation.y].count)
             }

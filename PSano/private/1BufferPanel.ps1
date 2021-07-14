@@ -54,6 +54,28 @@ class BufferPanel : TextUIPanel {
     }
 
     [void] SetCursor ([decimal]$Left,[decimal]$Top) {
+        if ($Left -lt 0){
+            $PSCmdlet.ThrowTerminatingError(
+                ( New-Object System.Management.Automation.ErrorRecord -ArgumentList @(
+                    [System.Management.Automation.RuntimeException]"Cannot set Cursor to a negative Left position: $Left",
+                    'PSano.BufferPanel.BadcursorPosition',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $this
+                    )
+                )
+            )
+        }
+        if ($Top -lt 0){
+            $PSCmdlet.ThrowTerminatingError(
+                ( New-Object System.Management.Automation.ErrorRecord -ArgumentList @(
+                    [System.Management.Automation.RuntimeException]"Cannot set Cursor to a negative Top position: $Left",
+                    'PSano.BufferPanel.BadcursorPosition',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $this
+                    )
+                )
+            )
+        }
         $this.CursorPos = [uipoint]::new($Left,$Top)
         $this.UpdateCursor()
     }
@@ -79,6 +101,10 @@ class BufferPanel : TextUIPanel {
                 $this.page = [Math]::Floor( ($this.CursorPos.y / $this.WindowSize.y) )
                 $this.Redraw()
             }
+
+            # if page has changed we need to re-calc the relative position
+            $CurrentPageTop = ($this.Page * $this.WindowSize.y)
+            $CurrentPageBottom = ( $CurrentPageTop +  $this.WindowSize.y) -1
 
             [console]::CursorTop  = ($this.CursorPos.y - $CurrentPageTop) + $this.CachedOrigin.y
 
