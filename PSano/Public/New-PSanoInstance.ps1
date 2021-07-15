@@ -141,6 +141,18 @@ function Edit-TextFile {
                     $script:BufferEditor.insertLine("")
                 }
             },"PasteLine")
+            # Copy all lines to clipboard
+            [MenuHandle]::new([ConsoleKey]::A,[ConsoleModifiers]::Control,{
+                [string[]]$Contents = $script:BufferEditor.GetBufferLines()
+                try {
+                    $Contents | Set-Clipboard -ErrorAction Stop
+                    $Script:Header.Notice = "Copied To Clipbard."
+                    $script:Header.Redraw()
+                } catch {
+                    $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
+                    $script:Header.Redraw()
+                }
+            },"CopyAll")
 <#
             [MenuHandle]::new([System.ConsoleKey]::R,[System.ConsoleModifiers]::Control,{
                 $script:TextForm.Redraw()
