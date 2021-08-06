@@ -49,6 +49,10 @@ function Edit-TextFile {
         [int]$Depth,
 
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
+        [ArgumentCompleter({
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            return (Get-ChildItem -Path "function:$WordToComplete*").Name | Sort-Object
+        })]
         [string]$Function,
 
         [Parameter(Mandatory,ParameterSetName="Clipboard",Position=0)]
