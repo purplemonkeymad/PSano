@@ -5,6 +5,17 @@ function Edit-TextFile {
         [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
         [ArgumentCompleter({
             param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            if ($FakeBoundParams.Session){
+                return (Invoke-Command -Session $FakeBoundParams.Session -ScriptBlock {
+                    Param($word)
+                    (Get-Item "$Word*").Fullname
+                } -ArgumentList ($WordToComplete -replace '"')).foreach({
+                    if ($_ -match '\s') { "`"$_`"" } else { $_ }
+                })
+                #above line is a bit long, but we strip and add double quotes on this side
+                # so less is done by the remote server. The less done on remote the better,
+                # but also the less xfered the better.
+            }
             return
         })]
         [ValidateNotNullOrEmpty()]
