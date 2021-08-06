@@ -3,10 +3,16 @@ function Edit-TextFile {
     param (
         [Parameter(Mandatory,ParameterSetName="LocalFile" ,Position=0)]
         [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
+        [ArgumentCompleter({
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            return
+        })]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
+
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
+
         [parameter(ParameterSetName="LocalFile")]
         [parameter(ParameterSetName="RemoteFile")]
         [ArgumentCompleter({
@@ -22,15 +28,29 @@ function Edit-TextFile {
             
         })]
         [object]$Encoding,
+
         [Parameter(Mandatory,ParameterSetName="Variable",Position=0)]
+        [ArgumentCompleter({
+            param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+            return (Get-Variable -Scope Global -Name "$WordToComplete*").where({ 
+                # not a constant or readonly
+                -not (
+                    $_.Options -band ([System.Management.Automation.ScopedItemOptions]::Constant -bor [System.Management.Automation.ScopedItemOptions]::ReadOnly )
+                )
+             }).Name
+        })]
         [string]$Variable,
+
         [Parameter(Mandatory=0,ParameterSetName="Variable",Position=1)]
         [ValidateSet("String","Json")]
         [string]$EditMode = "String",
+
         [Parameter(Mandatory=0,ParameterSetName="Variable",Position=2)]
         [int]$Depth,
+
         [Parameter(Mandatory,ParameterSetName="Function",Position=0)]
         [string]$Function,
+
         [Parameter(Mandatory,ParameterSetName="Clipboard",Position=0)]
         [switch]$Clipboard
     )
