@@ -1,0 +1,42 @@
+﻿TOPIC
+    about_psano_commands
+
+SHORT DESCRIPTION
+    Psano has a few keyboard shortcuts that are used to navigate and edit the
+    buffer.
+
+COMMAND DISPLAY
+    The available commands are displayed with a Key combo and a short name
+    separated by a colon, ie: 'C+X: Quit'
+    Key combos with a plus '+' are key combos with the first character of the
+    modifier key. For example 'C+X' is the same as Control+X. At the moment all
+    commands use the Control modifier.
+
+COMMAND LIST
+    Psano currently has the following commands:
+
+Quit
+    Control+X is used to quit the interface. This will not save the buffer no
+    will it prompt to do so.
+
+Save
+    Control+O is used to save the buffer to whatever you were editing. If this
+    was a non-text object, the conversion will be attempted here. If saving
+    fails then the error will be displayed in the header on the first line.
+
+Cut Line
+    Control+K, similar to nano, this will remove the current line and place it
+    onto the clipboard. You can past the cut line with the Paste Line command,
+    or into another program via the windows clipboard.
+
+Paste Line
+    Control+U will paste a line or lines of text from the clipboard. If Cut Line
+    was previously used then it will paste that line of text.
+
+Copy All
+    Control+A will copy the whole buffer as it to the windows clipboard.
+
+SEE ALSO
+    about_psano
+    Edit-TextFile
+

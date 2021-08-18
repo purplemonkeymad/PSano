@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '0.2.2'
+ModuleVersion = '0.2.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -106,7 +106,8 @@ AliasesToExport = 'PSano'
 # ModuleList = @()
 
 # List of all files packaged with this module
-FileList = 'PSano-help.xml', 'PSano.psd1', 'puild.json', 'test.txt', 
+FileList = 'about_psano.help.txt', 'about_psano_commands.help.txt', 
+               'PSano-help.xml', 'PSano.psd1', 'puild.json', 'test.txt', 
                '1KeyEvents\1KeyHandle.ps1', '1KeyEvents\2KeyHandler.ps1', 
                '1KeyEvents\FocusSwitchingHandle.ps1', '2UI\1Point.ps1', 
                '2UI\2Canvas.ps1', '2UI\3Panel.ps1', '2UI\4Form.ps1', 

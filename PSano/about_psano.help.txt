@@ -1,0 +1,35 @@
+TOPIC
+    about_psano
+
+SHORT DESCRIPTION
+    Psano is a nano like text editor that is written in Powershell. It is able
+    to edit text files and other Powershell Objects (such as variables.)
+
+LONG DESCRIPTION
+    PSano is currently able to edit the following object types:
+    - Files
+    - Remote files over a PSSession
+    - Variables
+      - Via string conversion.
+      - Via Json representation.
+    - Function definitions
+    - Windows Text Clipboard
+
+NOTE
+    Psano is primarily a text editor. This means while you can edit non-text
+    objects, you results on the objects may vary. If using the String edit mode
+    for variables you may find your edited object is now a string array.
+    Function definitions are updated as soon as you save the text, but will only
+    affect the current session. Function in jobs will not be affected and
+    restarting a session will revert the definitions to their original values.
+    Use another command to save your functions if you want to keep them.
+
+TROUBLESHOOTING NOTE
+    Psano is an iteractive function. This means that it can only be used in an
+    interactive console session. Remote console session or limited logon
+    sessions may cause the command to file.
+
+SEE ALSO
+    about_psano_commands
+    Edit-TextFile
+
