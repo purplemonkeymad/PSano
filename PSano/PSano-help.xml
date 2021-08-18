@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml">
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10">
+        <command:details>
+            <command:name>Edit-TextFile</command:name>
+            <command:verb>Edit</command:verb>
+            <command:noun>TextFile</command:noun>
+            <maml:description>
+                <maml:para>Psano is a nano like text editor that is written in Powershell. It is able to edit text files and other Powershell Objects (such as variables.)</maml:para>
+            </maml:description>
+        </command:details>
+        <maml:description>
+            <maml:para>Psano is a nano like text editor that is written in Powershell.</maml:para>
+            <maml:para>It is able to edit text files and other Powershell Objects. This includes instant editing of functions. Variables as text or as Object market such as JSON.</maml:para>
+        </maml:description>
+        <command:syntax>
+            <command:SyntaxItem>
+                <maml:name>Edit-TextFile</maml:name>
+                <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Path</maml:name>
+                    <maml:Description>
+                        <maml:para>Path to file to edit. It should support any localtion that is normally accessible from powershell.</maml:para>
+                        <maml:para>If specifing a path for a remote session, the path must be a full path to the file.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                    <dev:type>
+                        <maml:name>string</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+                <command:parameter position="Named" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                    <maml:name>Encoding</maml:name>
+                    <maml:Description>
+                        <maml:para>Text encoding to read the file as. The values should follow those supported by Get-Content, and exact values will vary by platfrom.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">Object</command:parameterValue>
+                    <dev:type>
+                        <maml:name>Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding or System.Text.Encoding</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+            </command:SyntaxItem>
+            <command:SyntaxItem>
+                <maml:name>Edit-TextFile</maml:name>
+                <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Path</maml:name>
+                    <maml:Description>
+                        <maml:para>Path to file to edit. It should support any localtion that is normally accessible from powershell.</maml:para>
+                        <maml:para>If specifing a path for a remote session, the path must be a full path to the file.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                    <dev:type>
+                        <maml:name>string</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+                <command:parameter position="1" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Session</maml:name>
+                    <maml:Description>
+                        <maml:para>PSSession to use for remote editing of a file. The session must be established before being passed to this parameter.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">PSSession</command:parameterValue>
+                    <dev:type>
+                        <maml:name>PSSession</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+                <command:parameter position="Named" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                    <maml:name>Encoding</maml:name>
+                    <maml:Description>
+                        <maml:para>Text encoding to read the file as. The values should follow those supported by Get-Content, and exact values will vary by platfrom.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">Object</command:parameterValue>
+                    <dev:type>
+                        <maml:name>Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding or System.Text.Encoding</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+            </command:SyntaxItem>
+            <command:SyntaxItem>
+                <maml:name>Edit-TextFile</maml:name>
+                <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Variable</maml:name>
+                    <maml:Description>
+                        <maml:para>Name of Variable to edit.</maml:para>
+                        <maml:para>Only variables in the global scope are current supported.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                    <dev:type>
+                        <maml:name>string</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+                <command:parameter position="1" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                    <maml:name>EditMode</maml:name>
+                    <maml:Description>
+                        <maml:para>Method to Edit the variable. The current method are as follows</maml:para>
+                        <maml:para>String (default): standard c# string conversion is used. psano will attempt to convert the buffer back to the original type. If this fails it will change the variable type to be a string array. Best for strings or string arrays.</maml:para>
+                        <maml:para>JSON: variable object will be converted via the ConvertTo/From-Json commands. Object will be presented as a JSON text and converted back to a PSObject when saving.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                    <dev:type>
+                        <maml:name>string</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+                <command:parameter position="2" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                    <maml:name>Depth</maml:name>
+                    <maml:Description>
+                        <maml:para>This specifies the depth parameters for editmodes that follow properties, eg JSON.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">int</command:parameterValue>
+                    <dev:type>
+                        <maml:name>int</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+            </command:SyntaxItem>
+            <command:SyntaxItem>
+                <maml:name>Edit-TextFile</maml:name>
+                <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Function</maml:name>
+                    <maml:Description>
+                        <maml:para>Name of function to edit.</maml:para>
+                    </maml:Description>
+                    <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                    <dev:type>
+                        <maml:name>string</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+            </command:SyntaxItem>
+            <command:SyntaxItem>
+                <maml:name>Edit-TextFile</maml:name>
+                <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                    <maml:name>Clipboard</maml:name>
+                    <maml:Description>
+                        <maml:para>Specifies that they system clipboard be used as object to edit.</maml:para>
+                    </maml:Description>
+                    <dev:type>
+                        <maml:name>switch</maml:name>
+                        <maml:uri />
+                    </dev:type>
+                </command:parameter>
+            </command:SyntaxItem>
+        </command:syntax>
+        <command:Parameters>
+            <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                <maml:name>Path</maml:name>
+                <maml:Description>
+                    <maml:para>Path to file to edit. It should support any localtion that is normally accessible from powershell.</maml:para>
+                    <maml:para>If specifing a path for a remote session, the path must be a full path to the file.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="1" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                <maml:name>Session</maml:name>
+                <maml:Description>
+                    <maml:para>PSSession to use for remote editing of a file. The session must be established before being passed to this parameter.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">PSSession</command:parameterValue>
+                <dev:type>
+                    <maml:name>PSSession</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="Named" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                <maml:name>Encoding</maml:name>
+                <maml:Description>
+                    <maml:para>Text encoding to read the file as. The values should follow those supported by Get-Content, and exact values will vary by platfrom.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding or System.Text.Encoding</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                <maml:name>Variable</maml:name>
+                <maml:Description>
+                    <maml:para>Name of Variable to edit.</maml:para>
+                    <maml:para>Only variables in the global scope are current supported.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="1" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                <maml:name>EditMode</maml:name>
+                <maml:Description>
+                    <maml:para>Method to Edit the variable. The current method are as follows</maml:para>
+                    <maml:para>String (default): standard c# string conversion is used. psano will attempt to convert the buffer back to the original type. If this fails it will change the variable type to be a string array. Best for strings or string arrays.</maml:para>
+                    <maml:para>JSON: variable object will be converted via the ConvertTo/From-Json commands. Object will be presented as a JSON text and converted back to a PSObject when saving.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="2" pipelineInput="false" aliases="None" required="false" variableLength="" globbing="">
+                <maml:name>Depth</maml:name>
+                <maml:Description>
+                    <maml:para>This specifies the depth parameters for editmodes that follow properties, eg JSON.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">int</command:parameterValue>
+                <dev:type>
+                    <maml:name>int</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                <maml:name>Clipboard</maml:name>
+                <maml:Description>
+                    <maml:para>Specifies that they system clipboard be used as object to edit.</maml:para>
+                </maml:Description>
+                <dev:type>
+                    <maml:name>switch</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+            <command:parameter position="0" pipelineInput="false" aliases="None" required="true" variableLength="" globbing="">
+                <maml:name>Function</maml:name>
+                <maml:Description>
+                    <maml:para>Name of function to edit.</maml:para>
+                </maml:Description>
+                <command:parameterValue variableLength="False" Required="True">string</command:parameterValue>
+                <dev:type>
+                    <maml:name>string</maml:name>
+                    <maml:uri />
+                </dev:type>
+            </command:parameter>
+        </command:Parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None</maml:name>
+                </dev:type>
+            </command:inputType>
+            <maml:description>
+                <maml:para>This cmdlet does not accept any input.</maml:para>
+            </maml:description>
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>None</maml:name>
+                </dev:type>
+            </command:returnValue>
+            <maml:description>
+                <maml:para>This command does not output any objects.</maml:para>
+            </maml:description>
+        </command:returnValues>
+        <maml:alertSet />
+        <command:examples>
+            <command:example>
+                <maml:title>Example 1: LocalFile</maml:title>
+                <dev:remarks>
+                    <maml:para>Edit a local file on the current file system. This is the common action done by most editors.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Path .\myfile.txt</dev:code>
+            </command:example>
+            <command:example>
+                <maml:title>Example 2: RemoteFile</maml:title>
+                <dev:remarks>
+                    <maml:para>Edit a file on a remote file system using a PSRemoting Session.</maml:para>
+                    <maml:para>This allows you to edit remote files without direct access to the file system. The file is still effectivly copied, so large files can take some time to open. An exisiting Session is needed to start editing.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Path c:\myfile -Session (New-PSSession MyComputer)</dev:code>
+            </command:example>
+            <command:example>
+                <maml:title>Example 3: Variable</maml:title>
+                <dev:remarks>
+                    <maml:para>Editing of a variable as thought it was a text file. It will attempt to teat the variable as a String Array and convert back if the type supports conversion from String.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Variable &lt;VariableName&gt;</dev:code>
+            </command:example>
+            <command:example>
+                <maml:title>Example 4: Variable using a Converter</maml:title>
+                <dev:remarks>
+                    <maml:para>Editing of a variable as thought it was a text file. The object will be converted into JSON (or the specified mode) before being presented to the editor. Upon save the text will be converted back into an psobject. Object types and methods are typically lost.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Variable &lt;VariableName&gt; -EditMode Json</dev:code>
+            </command:example>
+            <command:example>
+                <maml:title>Example 4: Function</maml:title>
+                <dev:remarks>
+                    <maml:para>Editing of a function (not cmdlet) source. This will treat the function definition as the text area (ie no function decliration.) Saving will have an imidiate effect on the function.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Function &lt;String&gt;</dev:code>
+            </command:example>
+            <command:example>
+                <maml:title>Example 5: Clipboard</maml:title>
+                <dev:remarks>
+                    <maml:para>Direct editing of the clipboard. This can be a bit wonky as the Cut and Paste keys store lines in the clipboard.</maml:para>
+                </dev:remarks>
+                <dev:code>Edit-TextFile -Clipboard</dev:code>
+            </command:example>
+        </command:examples>
+        <command:relatedLinks />
+    </command:command>
+</helpItems>
