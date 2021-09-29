@@ -24,7 +24,7 @@ class MenuPanel : TextUIPanel {
 
     [string[]]$CachedKeys
 
-    [void] Draw ( [Canvas]$g ){
+    [void] Draw ( [Canvas]$g , [decimal[]]$lineList){
         if ($this.CachedKeys.count -eq 0) {
             [Queue[string]]$KeyStringList = @()
             $this.MenuKeys.foreach({
@@ -42,8 +42,9 @@ class MenuPanel : TextUIPanel {
             $this.CachedKeys = $line1.PadRight($g.BufferSize.x),$line2.PadRight($g.BufferSize.x)
         }
 
-        $g.Write(0,0,$this.CachedKeys[0])
-        $g.Write(0,1,$this.CachedKeys[1])
+        foreach ($drawLine in $lineList){
+            $g.Write(0,$drawLine,$this.CachedKeys[$drawLine])
+        }
     }
 
 }

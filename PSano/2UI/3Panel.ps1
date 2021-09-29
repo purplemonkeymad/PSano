@@ -12,11 +12,16 @@ class TextUIPanel {
     }
 
     [void] Draw ( [Canvas]$g ){
-        #implmented by subclasses
+        if ($this.RedrawAll){
+            $this.Draw($g, 0..($this.WindowSize.y -1))
+        } else {
+            $this.Draw($g, $this.RedrawLinesList)
+            $this.ClearRedrawList()
+        }
     }
 
     [void] Draw ( [Canvas]$g, [decimal[]]$lineList ) {
-        $this.Draw($g)
+        # implemented by subclasses.
     }
 
     [void] Redraw () {

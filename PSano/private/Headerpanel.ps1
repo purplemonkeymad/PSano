@@ -11,7 +11,7 @@ class HeaderPanel : TextUIPanel {
         $this.Text = $Header
     }
 
-    [void]Draw( [Canvas]$g  ){
+    [void]Draw( [Canvas]$g , [decimal[]]$lineList  ){
 
         $DrawText = " $($this.Text)"
         if ($this.Notice){
@@ -19,11 +19,13 @@ class HeaderPanel : TextUIPanel {
         }
         $DrawText = $DrawText.PadRight($g.BufferSize.x)
 
-        # invert colours
-        [console]::BackgroundColor,[console]::ForegroundColor = [console]::ForegroundColor,[console]::BackgroundColor
-        $g.Write(0,0,$DrawText)
-        # invert colours
-        [console]::BackgroundColor,[console]::ForegroundColor = [console]::ForegroundColor,[console]::BackgroundColor
+        if ($lineList -contains 0){ # one line high, so only redraw if the first line is in list.
+            # invert colours
+            [console]::BackgroundColor,[console]::ForegroundColor = [console]::ForegroundColor,[console]::BackgroundColor
+            $g.Write(0,0,$DrawText)
+            # invert colours
+            [console]::BackgroundColor,[console]::ForegroundColor = [console]::ForegroundColor,[console]::BackgroundColor
+        }
     }
 
 }
