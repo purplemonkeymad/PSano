@@ -88,6 +88,10 @@ function Edit-TextFile {
             # setup a window
             $TopWindow = [PSWindow]::new()
             $TopStatus = [BasicStatus]::new()
+            
+            $editingPane = [PSanoTextEdit]::new("test string")
+            
+            $TopWindow.Add($editingPane)
             $TopWindow.Add($TopStatus)
 
             # start program

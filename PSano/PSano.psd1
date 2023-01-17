@@ -12,7 +12,7 @@
 # RootModule = ''
 
 # Version number of this module.
-ModuleVersion = '0.2.6'
+ModuleVersion = '0.2.7'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -75,6 +75,7 @@ NestedModules = @('.\1KeyEvents\1KeyHandle.ps1',
                '.\2UI\3Panel.ps1', 
                '.\2UI\4Form.ps1', 
                '.\2UI\PsWindow.ps1', 
+               '.\2UI\TextEditor.ps1', 
                '.\private\1BufferPanel.ps1', 
                '.\private\1PSanoFile.ps1', 
                '.\private\BufferEditor.ps1', 
@@ -113,14 +114,14 @@ FileList = 'about_psano.help.txt', 'about_psano_commands.help.txt',
                '1KeyEvents\1KeyHandle.ps1', '1KeyEvents\2KeyHandler.ps1', 
                '1KeyEvents\FocusSwitchingHandle.ps1', '2UI\1Point.ps1', 
                '2UI\2Canvas.ps1', '2UI\3Panel.ps1', '2UI\4Form.ps1', 
-               '2UI\PsWindow.ps1', '2UI\StatusBars\BasicStatus.ps1', 
-               'private\1BufferPanel.ps1', 'private\1PSanoFile.ps1', 
-               'private\BufferEditor.ps1', 'private\Headerpanel.ps1', 
-               'private\MenuPanel.ps1', 'private\PSanoClipboard.ps1', 
-               'private\PSanoFileInSession.ps1', 'private\PSanoFunction.ps1', 
-               'private\PSanoJsonVar.ps1', 'private\PSanoVariable.ps1', 
-               'private\RemoveEvent.ps1', 'Public\Aliases.ps1', 
-               'Public\New-PSanoInstance.ps1', 
+               '2UI\PsWindow.ps1', '2UI\TextEditor.ps1', 
+               '2UI\StatusBars\BasicStatus.ps1', 'private\1BufferPanel.ps1', 
+               'private\1PSanoFile.ps1', 'private\BufferEditor.ps1', 
+               'private\Headerpanel.ps1', 'private\MenuPanel.ps1', 
+               'private\PSanoClipboard.ps1', 'private\PSanoFileInSession.ps1', 
+               'private\PSanoFunction.ps1', 'private\PSanoJsonVar.ps1', 
+               'private\PSanoVariable.ps1', 'private\RemoveEvent.ps1', 
+               'Public\Aliases.ps1', 'Public\New-PSanoInstance.ps1', 
                'ScriptsToProcess\LoadAssembelies.ps1'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
