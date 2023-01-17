@@ -83,25 +83,7 @@ function Edit-TextFile {
     
     process {
 
-        try {
 
-            # setup a window
-            $TopWindow = [PSWindow]::new()
-            $TopStatus = [BasicStatus]::new()
-
-            $width = [Terminal.Gui.Dim]::Fill(0)
-            $height = [Terminal.Gui.Dim]::Fill(0)
-            $editingPane = [PSanoTextEdit]::new("",$width,$height)
-
-            $TopWindow.Add($editingPane)
-            $TopWindow.Add($TopStatus)
-
-            # start program
-            [Terminal.Gui.Application]::Run($TopWindow)
-
-        } finally {
-            [Terminal.Gui.Application]::Shutdown()
-        }
 
         return
 
@@ -283,7 +265,25 @@ function Edit-TextFile {
 
         # "main loop"
 
-        
+        try {
+
+            # setup a window
+            $TopWindow = [PSWindow]::new()
+            $TopStatus = [BasicStatus]::new()
+
+            $width = [Terminal.Gui.Dim]::Fill(0)
+            $height = [Terminal.Gui.Dim]::Fill(0)
+            $editingPane = [PSanoTextEdit]::new("",$width,$height)
+
+            $TopWindow.Add($editingPane)
+            $TopWindow.Add($TopStatus)
+
+            # start program
+            [Terminal.Gui.Application]::Run($TopWindow)
+
+        } finally {
+            [Terminal.Gui.Application]::Shutdown()
+        }
 
         try{
             $drawCount = 0
