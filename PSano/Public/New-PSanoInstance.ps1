@@ -126,65 +126,78 @@ function Edit-TextFile {
 
         $GlobalKeyActions = @(
             # quit option, this should break the read key loop and let the function exit.
-            [MenuHandle]::new([ConsoleKey]::X,[ConsoleModifiers]::Control,{
-                $script:ShouldReadNextKey = $false
-            },"Quit")
-            [MenuHandle]::new([ConsoleKey]::O,[ConsoleModifiers]::Control,{
-                try {
-                    $Script:Header.Notice = "Saving..."
-                    $script:Header.Redraw()
-
-                    $File.writeFileContents($script:BufferEditor.GetBufferLines())
-
-                    $script:Header.Notice = "Saved."
-                    $script:Header.Redraw()
-                } catch {
-                    $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
-                    $script:Header.Redraw()
+            [Terminal.Gui.StatusItem]::new(
+                [Terminal.Gui.Key]'ctrlmask, q',
+                'C+q : Quit',
+                { [Terminal.Gui.Application]::RequestStop() }
+            )
+            [Terminal.Gui.StatusItem]::new(
+                [Terminal.Gui.Key]'ctrlmask, o',
+                'C+o : Save',
+                { 
+                    try {
+                        $Script:Header.Notice = "Saving..."
+                        $script:Header.Redraw()
+    
+                        $File.writeFileContents($script:BufferEditor.GetBufferLines())
+    
+                        $script:Header.Notice = "Saved."
+                        $script:Header.Redraw()
+                    } catch {
+                        $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
+                        $script:Header.Redraw()
+                    }
                 }
-            },"Save")
+            )
             # k  or cut is closest to "cutline"
-            [MenuHandle]::new([consoleKey]::K,[consoleModifiers]::Control,{
-                $line = $script:BufferEditor.popCurrentLine()
-                if (-not [string]::IsNullOrEmpty($line)) {
-                    Set-Clipboard -Value $line
+            [Terminal.Gui.StatusItem]::new(
+                [Terminal.Gui.Key]'ctrlmask, k',
+                'C+k : CutLine',
+                {
+                    $line = $script:BufferEditor.popCurrentLine()
+                    if (-not [string]::IsNullOrEmpty($line)) {
+                        Set-Clipboard -Value $line
+                    }
                 }
-            },"CutLine")
+            )
             # U or uncut is the closest to "paste"
-            [MenuHandle]::new([ConsoleKey]::U,[ConsoleModifiers]::Control,{
-                [string[]]$Clip = Get-Clipboard
-                if ($clip.count -gt 0) {
-                    # if there is more that one line, we need to paste
-                    # the last line first so that the lines before
-                    # appear above.
-
-                    [array]::Reverse($clip)
-
-                    $Clip.foreach({
-                        $script:BufferEditor.insertLine($_)
-                    })
-                } else {
-                    # -eq 0
-                    $script:BufferEditor.insertLine("")
+            [Terminal.Gui.StatusItem]::new(
+                [Terminal.Gui.Key]'ctrlmask, u',
+                'C+U : PasteLine',
+                {
+                    [string[]]$Clip = Get-Clipboard
+                    if ($clip.count -gt 0) {
+                        # if there is more that one line, we need to paste
+                        # the last line first so that the lines before
+                        # appear above.
+    
+                        [array]::Reverse($clip)
+    
+                        $Clip.foreach({
+                            $script:BufferEditor.insertLine($_)
+                        })
+                    } else {
+                        # -eq 0
+                        $script:BufferEditor.insertLine("")
+                    }
                 }
-            },"PasteLine")
+            )
             # Copy all lines to clipboard
-            [MenuHandle]::new([ConsoleKey]::A,[ConsoleModifiers]::Control,{
-                [string[]]$Contents = $script:BufferEditor.GetBufferLines()
-                try {
-                    $Contents | Set-Clipboard -ErrorAction Stop
-                    $Script:Header.Notice = "Copied To Clipbard."
-                    $script:Header.Redraw()
-                } catch {
-                    $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
-                    $script:Header.Redraw()
+            [Terminal.Gui.StatusItem]::new(
+                [Terminal.Gui.Key]'ctrlmask, a',
+                'C+a : CopyAll',
+                {
+                    [string[]]$Contents = $script:BufferEditor.GetBufferLines()
+                    try {
+                        $Contents | Set-Clipboard -ErrorAction Stop
+                        $Script:Header.Notice = "Copied To Clipbard."
+                        $script:Header.Redraw()
+                    } catch {
+                        $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
+                        $script:Header.Redraw()
+                    }
                 }
-            },"CopyAll")
-<#
-            [MenuHandle]::new([System.ConsoleKey]::R,[System.ConsoleModifiers]::Control,{
-                $script:TextForm.Redraw()
-            },"Refresh Screen")
-#>
+            )
         )
 
         <#
@@ -229,7 +242,7 @@ function Edit-TextFile {
         } finally {
             [Terminal.Gui.Application]::Shutdown()
         }
-        
+
     }
     
     end {
