@@ -135,17 +135,10 @@ function Edit-TextFile {
                 [Terminal.Gui.Key]'ctrlmask, o',
                 'C+o : Save',
                 { 
-                    try {
-                        $Script:Header.Notice = "Saving..."
-                        $script:Header.Redraw()
-    
-                        $File.writeFileContents($script:BufferEditor.GetBufferLines())
-    
-                        $script:Header.Notice = "Saved."
-                        $script:Header.Redraw()
+                    try {    
+                        $File.writeFileContents($editingPane.Text)
                     } catch {
-                        $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
-                        $script:Header.Redraw()
+                        #$script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
                     }
                 }
             )
@@ -206,20 +199,12 @@ function Edit-TextFile {
         mean it appears *below* the ghost interface.
         #>
         try {
-            $BufferEditor.LoadBuffer( $File.readFileContents() )
+            $LoadedText = $File.readFileContents() -join "`n"
         } catch {
-
-            #clean up if we are inturrpted.
-            [console]::CursorVisible = $true
-            [console]::CursorTop = $ExitCursorTop
-            [console]::CursorLeft = 0
-
             throw $_
             return
         }
 
-        $script:Header.Notice = $null
-        $script:Header.Redraw()
 
         # "main loop"
 
@@ -232,6 +217,8 @@ function Edit-TextFile {
             $width = [Terminal.Gui.Dim]::Fill(0)
             $height = [Terminal.Gui.Dim]::Fill(0)
             $editingPane = [PSanoTextEdit]::new("",$width,$height)
+
+            $editingPane.Text = $LoadedText
 
             $TopWindow.Add($editingPane)
             $TopWindow.Add($TopStatus)
