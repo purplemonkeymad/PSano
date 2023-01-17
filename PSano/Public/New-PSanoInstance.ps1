@@ -130,7 +130,8 @@ function Edit-TextFile {
                 'C+o : Save',
                 { 
                     try {    
-                        $File.writeFileContents($editingPane.Text)
+                        # editing pane uses nstack's ustrings, explicit to string needed here
+                        $File.writeFileContents( ($editingPane.Text.toString()) )
                     } catch {
                         #$script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
                     }
