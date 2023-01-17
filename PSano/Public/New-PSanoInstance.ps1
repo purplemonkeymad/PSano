@@ -125,12 +125,6 @@ function Edit-TextFile {
         }
 
         $GlobalKeyActions = @(
-            # quit option, this should break the read key loop and let the function exit.
-            [Terminal.Gui.StatusItem]::new(
-                [Terminal.Gui.Key]'ctrlmask, q',
-                'C+q : Quit',
-                { [Terminal.Gui.Application]::RequestStop() }
-            )
             [Terminal.Gui.StatusItem]::new(
                 [Terminal.Gui.Key]'ctrlmask, o',
                 'C+o : Save',
@@ -213,6 +207,13 @@ function Edit-TextFile {
             # setup a window
             $TopWindow = [PSWindow]::new()
             $TopStatus = [BasicStatus]::new()
+
+            [array]::Reverse($GlobalKeyActions)
+            $GlobalKeyActions | ForEach-Object {
+                $TopStatus.AdditemAt(
+                    0,$_
+                )
+            }
 
             $width = [Terminal.Gui.Dim]::Fill(0)
             $height = [Terminal.Gui.Dim]::Fill(0)
