@@ -83,10 +83,6 @@ function Edit-TextFile {
     
     process {
 
-
-
-        return
-
         if (-not $Encoding){
             $Encoding = "Default"
         } else {
@@ -127,22 +123,6 @@ function Edit-TextFile {
                 [PSanoClipboard]::new()
             }
         }
-
-        $script:ShouldReadNextKey = $true
-
-        $script:TextForm = [TextUIForm]::new()
-        $script:Header = [HeaderPanel]::new("PSano")
-        $TextForm.ChildPanelList.add($script:Header)
-
-        # header panel is 1 line
-        # menu panel is 2 lines
-        # total 3 lines
-
-        $bufferheight = [console]::WindowHeight - 3
-
-        $Buffer = [BufferPanel]::new($bufferheight)
-        $buffer.SetFocus()
-        $script:TextForm.ChildPanelList.Add($Buffer)
 
         $GlobalKeyActions = @(
             # quit option, this should break the read key loop and let the function exit.
@@ -207,41 +187,6 @@ function Edit-TextFile {
 #>
         )
 
-        $script:TextForm.ChildPanelList.Add([MenuPanel]::new($GlobalKeyActions))
-
-        # key handles
-
-        $MainKeyListener = [KeyHandler]::new()
-        $GlobalKeyActions | ForEach-Object { $MainKeyListener.Add( $_) }
-
-        #editor object
-
-        $script:BufferEditor = [BufferEditor]::new($Buffer)
-
-        # The default action should be hanled by the editor pane. As if it is
-        #  not a menu key, then it's probably a charater.
-
-        $MainKeyListener.Default = {
-            $script:BufferEditor.HandleKey($_)
-        }
-
-        <#
-        We need to get all this information before the first draw, otherwise
-        we end up having the wrong exit location by the final draw position.
-        #>
-        $ExitCursorTop = [Console]::CursorTop + [console]::WindowHeight
-        # extend buffer size now so we can be sure exit location is correct:
-        if ([console]::BufferHeight -lt $ExitCursorTop){
-            [console]::BufferHeight = $ExitCursorTop + 1
-        }
-        $script:TextForm.Draw()
-
-        $filename = $File.FullPath | Split-Path -Leaf
-        $script:Header.Text = "PSano : $filename"
-        # need to pull from remote session 
-        $script:Header.Notice = "Loading file..."
-        $script:Header.Redraw()
-
         <#
         The return here should kick us back to the console. The error would
         appear after the last draw, the repeat of the finally block should
@@ -284,31 +229,7 @@ function Edit-TextFile {
         } finally {
             [Terminal.Gui.Application]::Shutdown()
         }
-
-        try{
-            $drawCount = 0
-            $startColour = [console]::ForegroundColor
-            while ($script:ShouldReadNextKey){
-                $script:TextForm.Draw()
-                # clear notice now that we have drawn it once. and trigger draw for next round.
-                if ($script:Header.Notice){
-                    $script:Header.Notice = $null
-                    $script:Header.Redraw()
-                }
-                $Buffer.UpdateCursor()
-                $MainKeyListener.ReadKey()
-                if ($Rainbow){
-                    [console]::ForegroundColor = $colourList[$drawCount % $colourList.Count]
-                }
-                $drawCount++
-            }
-        } finally {
-            #clean up if we are inturrpted.
-            [console]::CursorVisible = $true
-            [console]::CursorTop = $ExitCursorTop
-            [console]::CursorLeft = 0
-            [console]::ForegroundColor = $startColour
-        }
+        
     }
     
     end {
