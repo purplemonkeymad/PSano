@@ -3,14 +3,14 @@ using namespace Terminal.Gui
 class PSanoTextEdit : TextView {
 
     PSanoTextEdit( [string]$StartingText ) : base() {
-        $this.ClassInit( $StartingText, ([console]::WindowWidth - 2), ([Console]::WindowHeight - 3 ))
+        $this.ClassInit( $StartingText, [dim]::fill(0), [dim]::fill(0))
     }
 
-    PSanoTextEdit( [string]$StartingText, [int]$Width, [int]$height ) : base() {
+    PSanoTextEdit( [string]$StartingText, [dim]$Width, [dim]$height ) : base() {
         $this.ClassInit($StartingText,$Width,$height )
     }
 
-    hidden [void] ClassInit( [string]$StartingText, [int]$Width, [int]$height ) {
+    hidden [void] ClassInit( [string]$StartingText, [dim]$Width, [dim]$height ) {
 
         $this.Multiline = $true
         # enable editing style
