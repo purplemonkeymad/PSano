@@ -208,10 +208,9 @@ function Edit-TextFile {
             $TopWindow = [PSWindow]::new()
             $TopStatus = [BasicStatus]::new()
 
-            [array]::Reverse($GlobalKeyActions)
             $GlobalKeyActions | ForEach-Object {
                 $TopStatus.AdditemAt(
-                    0,$_
+                    $TopStatus.Items.Count,$_
                 )
             }
 
