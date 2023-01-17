@@ -76,9 +76,7 @@ function Edit-TextFile {
         $colourList = [enum]::GetNames([System.ConsoleColor])
 
 
-        Add-Type -Path $env:LOCALAPPDATA\PackageManagement\NuGet\Packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll
-        Add-Type -Path $env:LOCALAPPDATA\PackageManagement\NuGet\Packages\NStack.Core.1.0.7\lib\netstandard2.0\NStack.dll
-        Add-Type -Path $env:LOCALAPPDATA\PackageManagement\NuGet\Packages\Terminal.Gui.1.9.0\lib\netstandard2.0\Terminal.Gui.dll
+
         # boiler plate for terminal.gui
         [Terminal.Gui.Application]::Init()
     }
@@ -88,21 +86,11 @@ function Edit-TextFile {
         try {
 
             # setup a window
-            $TopWindow = [Terminal.Gui.Window]@{
-                #Effect3D = $false
-                Title = "PSano - $pid"
-            }
-
-            $TopStatus = [Terminal.Gui.StatusBar]::new(@(
-                [Terminal.Gui.StatusItem]::new(
-                    [Terminal.Gui.Key]'ctrlmask, x',
-                    'Quit',
-                    { [Terminal.Gui.Application]::RequestStop() }
-                )
-            ))
-
+            $TopWindow = [PSWindow]::new()
+            $TopStatus = [BasicStatus]::new()
             $TopWindow.Add($TopStatus)
 
+            # start program
             [Terminal.Gui.Application]::Run($TopWindow)
 
         } finally {
