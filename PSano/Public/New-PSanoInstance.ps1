@@ -142,16 +142,7 @@ function Edit-TextFile {
                 [Terminal.Gui.Key]'ctrlmask, k',
                 'C+k : CutLine',
                 {
-                    $lineNumber = $editingPane.CurrentRow
-                    [System.Collections.Generic.List[String]]$allLines = $editingPane.Text.toString() -split "\r?\n"
-                    $line = $allLines[$lineNumber]
-
-                    # remove that line
-                    $allLines.RemoveAt($lineNumber)
-                    $editingPane.Text = $allLines -join "`n"
-
-                    # keep cursor pos
-                    $editingPane.CursorPosition = [terminal.gui.point]::new(0,$lineNumber)
+                    $line = $editingPane.RemoveLineAt($editingPane.CurrentRow)
 
                     if (-not [string]::IsNullOrEmpty($line)) {
                         Set-Clipboard -Value $line

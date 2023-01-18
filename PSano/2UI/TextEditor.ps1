@@ -41,4 +41,18 @@ class PSanoTextEdit : TextView {
         $this.CursorPosition = [terminal.gui.point]::new(0,$lineNumber)
     }
 
+    [string]RemoveLineAt([int]$LineNumber){
+        [System.Collections.Generic.List[String]]$allLines = $this.Text.toString() -split "\r?\n"
+        $line = $allLines[$lineNumber]
+
+        # Add at that line
+        $allLines.RemoveAt($lineNumber)
+        $this.Text = $allLines -join "`n"
+
+        # keep cursor pos
+        $this.CursorPosition = [terminal.gui.point]::new(0,$lineNumber)
+
+        return $line
+    }
+
 }
