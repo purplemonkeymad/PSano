@@ -24,6 +24,11 @@ class PSanoTextEdit : TextView {
 
         # set text
         $this.Text = $StartingText
+
+        #set keybinding for nano style actions
+        $this.ClearKeyBinding([Key]'X, CtrlMask')
+
+        $this.AddKeyBinding([Key]'K, CtrlMask', ' Cut' )
     }
 
 }
