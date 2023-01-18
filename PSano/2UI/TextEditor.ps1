@@ -28,6 +28,7 @@ class PSanoTextEdit : TextView {
         #set keybinding for nano style actions
         $this.ClearKeyBinding([Key]'X, CtrlMask')
         $this.ClearKeyBinding([Key]'K, CtrlMask')
+        $this.ClearKeyBinding([Key]'A, CtrlMask')
     }
 
     [void]InsertLineAt([int]$LineNumber,[string]$String) {

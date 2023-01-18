@@ -163,15 +163,10 @@ function Edit-TextFile {
                 [Terminal.Gui.Key]'ctrlmask, a',
                 'C+a : CopyAll',
                 {
-                    [string[]]$Contents = $script:BufferEditor.GetBufferLines()
+                    [string]$Contents = $editingPane.Text.toString()
                     try {
                         $Contents | Set-Clipboard -ErrorAction Stop
-                        $Script:Header.Notice = "Copied To Clipbard."
-                        $script:Header.Redraw()
-                    } catch {
-                        $script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
-                        $script:Header.Redraw()
-                    }
+                    } catch {}
                 }
             )
         )
