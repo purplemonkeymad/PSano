@@ -30,4 +30,15 @@ class PSanoTextEdit : TextView {
         $this.ClearKeyBinding([Key]'K, CtrlMask')
     }
 
+    [void]InsertLineAt([int]$LineNumber,[string]$String) {
+        [System.Collections.Generic.List[String]]$allLines = $this.Text.toString() -split "\r?\n"
+
+        # Add at that line
+        $allLines.Insert($lineNumber,$String)
+        $this.Text = $allLines -join "`n"
+
+        # keep cursor pos
+        $this.CursorPosition = [terminal.gui.point]::new(0,$lineNumber)
+    }
+
 }

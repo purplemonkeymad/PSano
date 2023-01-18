@@ -163,21 +163,8 @@ function Edit-TextFile {
                 [Terminal.Gui.Key]'ctrlmask, u',
                 'C+U : PasteLine',
                 {
-                    [string[]]$Clip = Get-Clipboard
-                    if ($clip.count -gt 0) {
-                        # if there is more that one line, we need to paste
-                        # the last line first so that the lines before
-                        # appear above.
-    
-                        [array]::Reverse($clip)
-    
-                        $Clip.foreach({
-                            $script:BufferEditor.insertLine($_)
-                        })
-                    } else {
-                        # -eq 0
-                        $script:BufferEditor.insertLine("")
-                    }
+                    $Clip = Get-Clipboard -raw
+                    $editingPane.InsertLineAt($editingPane.CurrentRow,$Clip)
                 }
             )
             # Copy all lines to clipboard
