@@ -27,8 +27,7 @@ class PSanoTextEdit : TextView {
 
         #set keybinding for nano style actions
         $this.ClearKeyBinding([Key]'X, CtrlMask')
-
-        $this.AddKeyBinding([Key]'K, CtrlMask', ' Cut' )
+        $this.ClearKeyBinding([Key]'K, CtrlMask')
     }
 
 }
