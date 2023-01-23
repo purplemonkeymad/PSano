@@ -132,8 +132,9 @@ function Edit-TextFile {
                     try {    
                         # editing pane uses nstack's ustrings, explicit to string needed here
                         $File.writeFileContents( ($editingPane.Text.toString()) )
+                        $TopWindow.SetTitleSuffix("File Saved. " + (get-date).tostring())
                     } catch {
-                        #$script:Header.Notice = [string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message
+                        $TopWindow.SetTitleSuffix( ([string]$_.categoryinfo.category + ': ' + [string]$_.Exception.Message) )
                     }
                 }
             )
