@@ -67,16 +67,10 @@ function Edit-TextFile {
         [string]$Function,
 
         [Parameter(Mandatory,ParameterSetName="Clipboard",Position=0)]
-        [switch]$Clipboard,
-        [Parameter(DontShow)]
-        [switch]$Rainbow
+        [switch]$Clipboard
     )
     
     begin {
-        $colourList = [enum]::GetNames([System.ConsoleColor])
-
-
-
         # boiler plate for terminal.gui
         [Terminal.Gui.Application]::Init()
     }
