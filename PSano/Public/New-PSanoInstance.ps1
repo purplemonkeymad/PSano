@@ -200,7 +200,7 @@ function Edit-TextFile {
             }
 
             $width = [Terminal.Gui.Dim]::Fill(0)
-            $height = [Terminal.Gui.Dim]::Fill(0)
+            $height = [Terminal.Gui.Dim]::Fill(1)
             $editingPane = [PSanoTextEdit]::new("",$width,$height)
 
             $TopWindow.SetTitleSuffix($File.FullPath)
