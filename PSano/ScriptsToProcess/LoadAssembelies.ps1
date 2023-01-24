@@ -1,10 +1,14 @@
 # this runs in caller context so plan is no variables
 
 @(
-        [pscustomobject]@{File = 'lib\netstandard1.0\System.ValueTuple.dll'; Package = 'System.ValueTuple'}
-        [pscustomobject]@{File = 'lib\netstandard2.0\NStack.dll'; Package = 'NStack.Core'}
-        [pscustomobject]@{File = 'lib\netstandard2.0\Terminal.Gui.dll'; Package = 'Terminal.Gui'}
+        [pscustomobject]@{File = 'lib\netstandard1.0\System.ValueTuple.dll'; Package = 'System.ValueTuple';TestClass="System.ValueTuple"}
+        [pscustomobject]@{File = 'lib\netstandard2.0\NStack.dll'; Package = 'NStack.Core';TestClass="Nstack.ustring"}
+        [pscustomobject]@{File = 'lib\netstandard2.0\Terminal.Gui.dll'; Package = 'Terminal.Gui';TestClass="Terminal.Gui.Window"}
 ) | ForEach-Object {
+        if ($_.TestClass -as [Type]){
+                return # already loaded
+        }
+
         # nested join-path as 5.1 does not support additional child path param
         try{ 
                 Add-Type -Path (Join-Path $PSScriptRoot (Join-Path ".." $_.File ) ) -ErrorAction Stop
