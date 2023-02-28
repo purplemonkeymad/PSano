@@ -47,4 +47,29 @@ class PSanoFile {
         Write-Error "writeFileContents not implimented on this class." -ErrorAction Stop -ErrorId "psano.FileReaders.NotImplimented" -TargetObject $this -Category NotImplemented
     }
 
+    <#
+    
+    retrives all current implimenters of this class, that are loaded
+    into the current app domain.
+    
+    #>
+
+    static [type[]] getLoadedReaders() {
+        $readers = [System.AppDomain]::CurrentDomain.GetAssemblies().GetTypes().Where({
+            [PSanoFile].IsAssignableFrom($_) -and $_ -ne [psanofile]
+        })
+        return $readers
+    }
+
+    <#
+    
+    Given a provider and a path, can the current class load those types of objects.
+    doing the load is not required just a best estimate from the information given.
+    
+    #>
+
+    static [bool] canReadPath( [System.Management.Automation.ProviderInfo]$FileSystemProvider, [string]$PSPath ) {
+        return $false
+    }
+
 }

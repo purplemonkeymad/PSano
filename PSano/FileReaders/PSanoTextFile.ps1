@@ -55,4 +55,12 @@ class PSanoTextFile : PSanoFile {
         }
     }
 
+    static [bool] canReadPath( [System.Management.Automation.ProviderInfo]$FileSystemProvider, [string]$PSPath ){
+        if ($FileSystemProvider.Name -eq "FileSystem"){
+            return $true
+        }
+
+        return $false
+    }
+
 }
