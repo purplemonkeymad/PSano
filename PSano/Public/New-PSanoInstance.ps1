@@ -92,8 +92,8 @@ function Edit-TextFile {
             }
         }
         $File = switch ($PSCmdlet.ParameterSetName) {
-            Default { [psanoFile]::new($Path, $Encoding) }
-            "LocalFile" { [psanoFile]::new($Path, $Encoding) }
+            Default { [PSanoTextFile]::new($Path, $Encoding) }
+            "LocalFile" { [PSanoTextFile]::new($Path, $Encoding) }
             "RemoteFile" {
                 [PSanoFileInSession]::new($Path,$Session,$Encoding)
             }

@@ -12,17 +12,10 @@ The base implimentation is for local files.
 class PSanoFile {
 
     [string]$FullPath
-    # must use object here as ps5&7 have different types for get-content parameters.
-    [object]$Encoding = "Default"
 
     # PSano has and had no idea of a memory only file, all files have a save location before they are opened.
     PSanoFile([string]$FullPath) {
         $this.FullPath = $FullPath
-    }
-
-    PSanoFile([string]$FullPath, [object]$Encoding) {
-        $this.FullPath = $FullPath
-        $this.Encoding = $Encoding
     }
 
     <#
@@ -36,17 +29,8 @@ class PSanoFile {
 
     #>
     [string[]] readFileContents() {
-        if ($this.FullPath) {
-            # pass issues to Get-Content
-            if (Test-Path -LiteralPath $this.FullPath) {
-                return (Get-Content -LiteralPath $this.FullPath -ErrorAction Stop -Encoding $this.Encoding)
-            } else {
-                return [string[]]''
-            }
-        } else {
-            # we want to return something.
-            return [string[]]''
-        }
+        Write-Error "readFileContents not implimented on this class." -ErrorAction Stop -ErrorId "psano.FileReaders.NotImplimented" -TargetObject $this -Category NotImplemented
+        return [string[]]""
     }
 
     <#
@@ -60,12 +44,7 @@ class PSanoFile {
     #>
 
     [void] writeFileContents([string[]]$Content) {
-        if ($this.FullPath) {
-            # we will just let set-content hanle any issue with the file as it is.
-            Set-Content -LiteralPath $this.FullPath -Value $Content -ErrorAction Stop -Encoding $this.Encoding
-        } else {
-            throw "Path not set, can't save file."
-        }
+        Write-Error "writeFileContents not implimented on this class." -ErrorAction Stop -ErrorId "psano.FileReaders.NotImplimented" -TargetObject $this -Category NotImplemented
     }
 
 }
