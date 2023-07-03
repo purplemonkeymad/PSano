@@ -72,4 +72,35 @@ class PSanoFile {
         return $false
     }
 
+    <#
+    
+    get a valid reader for a given path, or null if none found.
+    
+    #>
+
+    static [psanofile] findReaderForPath([string]$Path) {
+
+        $foundReaderType = if (Test-Path -LiteralPath $Path -PathType Leaf) {
+            $Item = Get-Item -LiteralPath $Path
+
+            $LoadedReaders = [PSanoFile]::getLoadedReaders()
+            foreach ($reader in $LoadedReaders) {
+                if ($reader::canReadPath( $Item.PSProvider, $Item.PSPath )) {
+                    Write-Output $reader
+                }
+            }
+        } else {
+            # unresolved path we need to determine provider type
+        }
+
+        $foundReader = if ($foundReaderType){
+            try {
+                $foundReaderType::new($Path)
+            } catch {}
+        }
+
+        return $foundReader
+
+    }
+
 }
