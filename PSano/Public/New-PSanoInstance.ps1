@@ -1,5 +1,5 @@
 function Edit-TextFile {
-    [CmdletBinding(DefaultParameterSetName="LocalFile")]
+    [CmdletBinding(DefaultParameterSetName=".default")]
     param (
         [Parameter(Mandatory,ParameterSetName="LocalFile" ,Position=0)]
         [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
@@ -20,6 +20,10 @@ function Edit-TextFile {
         })]
         [ValidateNotNullOrEmpty()]
         [string]$Path,
+
+        [Parameter(ParameterSetName="LocalFile")]
+        [switch]
+        $LocalFile,
 
         [Parameter(Mandatory,ParameterSetName="RemoteFile",Position=1)]
         [System.Management.Automation.Runspaces.PSSession]$Session,
@@ -92,8 +96,32 @@ function Edit-TextFile {
             }
         }
         $File = switch ($PSCmdlet.ParameterSetName) {
-            Default { [PSanoTextFile]::new($Path, $Encoding) }
-            "LocalFile" { [PSanoTextFile]::new($Path, $Encoding) }
+            Default { 
+                if ($LocalFile) {
+                    [PSanoTextFile]::new($Path, $Encoding)
+                } else {
+                    # try to use auto resolve.
+                    $temp = [PSanoFile]::findReaderForPath($Path)
+                    if (-not $temp) {
+                        Write-Error -Message "Unable to determine path type for $Path, please use the specific parameters or -Localfile for files." -ErrorId Psano.NoCompatibleReaders -Category InvalidType -ErrorAction Stop
+                    }
+                    if ($temp.Encoding) { $temp.Encoding = $Encoding }
+                    $temp
+                }
+            }
+            "LocalFile" {
+                if ($LocalFile) {
+                    [PSanoTextFile]::new($Path, $Encoding)
+                } else {
+                    # try to use auto resolve.
+                    $temp = [PSanoFile]::findReaderForPath($Path)
+                    if (-not $temp) {
+                        Write-Error -Message "Unable to determine path type for $Path, please use the specific parameters or -Localfile for files." -ErrorId Psano.NoCompatibleReaders -Category InvalidType -ErrorAction Stop
+                    }
+                    if ($temp.Encoding) { $temp.Encoding = $Encoding }
+                    $temp
+                } 
+            }
             "RemoteFile" {
                 [PSanoFileInSession]::new($Path,$Session,$Encoding)
             }
