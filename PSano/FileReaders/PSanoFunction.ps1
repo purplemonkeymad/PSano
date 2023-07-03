@@ -19,7 +19,10 @@ class PSanoFunction : PSanoFile {
     #>
 
     [string[]] readFileContents() {
-        $realPath = Join-Path 'function:\' -ChildPath $this.FullPath
+        $realPath = $this.FullPath
+        if ($this.FullPath -notlike "function:*"){
+            $realPath = Join-Path 'function:\' -ChildPath $this.FullPath
+        }
         $Contents = try {
             (Get-Content -LiteralPath $realPath -ErrorAction Stop) -split "\n"
         } catch {
@@ -44,5 +47,15 @@ class PSanoFunction : PSanoFile {
         Set-Content -LiteralPath $realPath -Value (
             $Content -join "`n"
         )
+    }
+
+    <# enable auto detection for the function drive #>
+
+    static [bool] canReadPath( [System.Management.Automation.ProviderInfo]$FileSystemProvider, [string]$PSPath ){
+        if ($FileSystemProvider.Name -eq "Function"){
+            return $true
+        }
+
+        return $false
     }
 }
