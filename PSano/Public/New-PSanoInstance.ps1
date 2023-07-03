@@ -1,5 +1,5 @@
 function Edit-TextFile {
-    [CmdletBinding(DefaultParameterSetName=".default")]
+    [CmdletBinding(DefaultParameterSetName="LocalFile")]
     param (
         [Parameter(Mandatory,ParameterSetName="LocalFile" ,Position=0)]
         [Parameter(Mandatory,ParameterSetName="RemoteFile" ,Position=0)]
